@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 
-export function useTimer(initialSeconds: number) {
+export function useTimer(initialSeconds: number, onFinish: () => void) {
   const [timeLeft, setTimeLeft] = useState(initialSeconds);
   const [isRunning, setIsRunning] = useState(false);
 
@@ -17,6 +17,7 @@ export function useTimer(initialSeconds: number) {
         if (prev <= 1) {
           clearInterval(intervalRef.current!);
           setIsRunning(false);
+          onFinish();
           return 0;
         }
         return prev - 1;

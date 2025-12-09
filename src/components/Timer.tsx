@@ -6,8 +6,20 @@ type Props = {
   initialTime: number; // ← Home側から渡す
 };
 
-export default function Timer({ selectedTask, selectedTimerSet, initialTime }: Props) {
-  const { timeLeft, isRunning, start, stop, reset } = useTimer(initialTime);
+export default function Timer({
+  selectedTask,
+  selectedTimerSet,
+  initialTime,
+}: Props) {
+  const handleFinish = () => {
+    alert("ポモドーロ終了！");
+    // ここで StudyLog を POST する処理を後で追加
+  };
+
+  const { timeLeft, isRunning, start, stop, reset } = useTimer(
+    initialTime,
+    handleFinish
+  );
 
   // 秒 → mm:ss
   const formatTime = (sec: number) => {
@@ -23,8 +35,12 @@ export default function Timer({ selectedTask, selectedTimerSet, initialTime }: P
       </h2>
 
       <div style={{ display: "flex", gap: "10px", justifyContent: "center" }}>
-        <button onClick={start} disabled={isRunning}>Start</button>
-        <button onClick={stop}>Stop</button>
+        <button onClick={start} disabled={isRunning}>
+          Start
+        </button>
+        <button onClick={stop} disabled={!isRunning}>
+          Stop
+        </button>
         <button onClick={reset}>Reset</button>
       </div>
     </div>

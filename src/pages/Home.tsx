@@ -9,7 +9,7 @@ export default function Home() {
   const getInitialTime = () => {
     switch (selectedTimerSet) {
       case "set1":
-        return 25 * 60;
+        return 2 * 6;
       case "set2":
         return 50 * 60;
       case "set3":
