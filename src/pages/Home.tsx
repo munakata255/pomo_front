@@ -1,3 +1,33 @@
+import { useState } from "react";
+import TaskSelect from "../components/TaskSelect";
+import TimerSetSelect from "../components/TimerSetSelect";
+import Timer from "../components/Timer";
+
 export default function Home() {
-  return <h1>Home（タイマー画面）</h1>;
+  const [selectedTask, setSelectedTask] = useState<string>("");
+  const [selectedTimerSet, setSelectedTimerSet] = useState<string>("");
+
+  return (
+    <div style={{ maxWidth: "480px", margin: "0 auto", textAlign: "center" }}>
+      <h1>Pomodoro Timer</h1>
+
+      {/* タスク選択 */}
+      <TaskSelect
+        selectedTask={selectedTask}
+        onSelectTask={(taskId) => setSelectedTask(taskId)}
+      />
+
+      {/* タイマーセット選択 */}
+      <TimerSetSelect
+        selectedTimerSet={selectedTimerSet}
+        onSelectTimerSet={(setId) => setSelectedTimerSet(setId)}
+      />
+
+      {/* タイマー表示 */}
+      <Timer
+        selectedTask={selectedTask}
+        selectedTimerSet={selectedTimerSet}
+      />
+    </div>
+  );
 }
