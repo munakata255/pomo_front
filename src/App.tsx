@@ -3,7 +3,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 // pages
 import Home from "./pages/Home";
 import Stats from "./pages/Stats";
-import Settings from "./pages/Settings";
+import Settings from "./pages/Settings/index";
 import Login from "./pages/Login";
 
 // layout
