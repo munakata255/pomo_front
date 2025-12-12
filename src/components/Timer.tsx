@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useTimer } from "../hooks/useTimer";
+import { useState } from "react";
 
 type Props = {
   selectedTask: string;
@@ -12,31 +13,45 @@ export default function Timer({
   selectedTimerSet,
   initialTime,
 }: Props) {
+  const [startedAt, setStartedAt] = useState<Date | null>(null);
+
   const handleFinish = async () => {
+    if (!startedAt) return;
+
     alert("ポモドーロ終了！");
-    // ここで StudyLog を POST する処理を後で追加
+
     try {
       await axios.post("http://localhost:5001/studyLogs", {
-        userId: "testuser", // 後で Firebase UID に変更
+        userId: "testuser",
         taskId: selectedTask,
         timerSetId: selectedTimerSet,
-        startedAt: new Date(Date.now() - initialTime * 1000),
+        startedAt, // ← 修正ポイント！
         finishedAt: new Date(),
-        durationSeconds: initialTime,
+        durationSeconds: initialTime - timeLeft,
         status: "completed",
       });
 
       alert("保存完了しました🔥");
     } catch (error) {
-      console.error(error);
       alert("保存に失敗しました");
-      console.log("selectedTask =", selectedTask);
-console.log("selectedTimerSet =", selectedTimerSet);
-console.log("initialTime =", initialTime);
-
     }
+
+    setStartedAt(null);
   };
 
+  const handleStart = () => {
+    setStartedAt(new Date()); // ← 開始時刻を保存
+    start(); // ← タイマー開始
+  };
+  const handleStop = () => {
+    stop(); // ← 保存しない
+  };
+  const handleReset = () => {
+    reset(); // ← useTimer の reset（時間を初期値に戻す）
+    setStartedAt(null); // ← これが超重要！
+  };
+
+  
   const { timeLeft, isRunning, start, stop, reset } = useTimer(
     initialTime,
     handleFinish
@@ -49,6 +64,32 @@ console.log("initialTime =", initialTime);
     return `${m}:${s.toString().padStart(2, "0")}`;
   };
 
+  const handleSave = async () => {
+    if (!startedAt) {
+      alert("まだ開始されていません");
+      return;
+    }
+
+    const finishedAt = new Date();
+    const durationSeconds = initialTime - timeLeft;
+
+    try {
+      await axios.post("http://localhost:5001/studyLogs", {
+        userId: "testuser",
+        taskId: selectedTask,
+        timerSetId: selectedTimerSet,
+        startedAt,
+        finishedAt,
+        durationSeconds,
+        status: "interrupted",
+      });
+
+      alert("途中までの勉強時間を保存しました✨");
+    } catch (e) {
+      alert("保存に失敗しました");
+    }
+  };
+
   return (
     <div style={{ marginTop: "40px" }}>
       <h2 style={{ fontSize: "48px", marginBottom: "20px" }}>
@@ -56,13 +97,16 @@ console.log("initialTime =", initialTime);
       </h2>
 
       <div style={{ display: "flex", gap: "10px", justifyContent: "center" }}>
-        <button onClick={start} disabled={isRunning}>
+        <button onClick={handleStart} disabled={isRunning}>
           Start
         </button>
-        <button onClick={stop} disabled={!isRunning}>
+        <button onClick={handleStop} disabled={!isRunning}>
           Stop
         </button>
-        <button onClick={reset}>Reset</button>
+        <button onClick={handleReset}>Reset</button>
+        <button onClick={handleSave} disabled={isRunning || !startedAt}>
+          Save
+        </button>
       </div>
     </div>
   );
