@@ -1,10 +1,19 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 
+type TimerSet = {
+  _id: string;
+  name: string;
+  workDuration: number;
+  breakDuration: number;
+  cycles: number;
+};
+
 type Props = {
   selectedTimerSet: string;
-  onSelectTimerSet: (setId: string) => void;
+  onSelectTimerSet: (set: TimerSet | null) => void;
 };
+
 
 export default function TimerSetSelect({
   selectedTimerSet,
@@ -27,7 +36,10 @@ export default function TimerSetSelect({
       <label>Timer Set: </label>
       <select
         value={selectedTimerSet}
-        onChange={(e) => onSelectTimerSet(e.target.value)}
+        onChange={(e) => {
+  const selected = timerSets.find((s) => s._id === e.target.value);
+  if (selected) onSelectTimerSet(selected);
+}}
       >
         <option value="">選択してください</option>
         {timerSets.map((set) => (

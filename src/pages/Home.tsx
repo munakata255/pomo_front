@@ -5,18 +5,21 @@ import Timer from "../components/Timer";
 
 export default function Home() {
   const [selectedTask, setSelectedTask] = useState<string>("");
-  const [selectedTimerSet, setSelectedTimerSet] = useState<string>("");
+  type TimerSet = {
+    _id: string;
+    name: string;
+    workDuration: number;
+    breakDuration: number;
+    cycles: number;
+  };
+
+  // ↓ string → TimerSet | null に変更
+  const [selectedTimerSet, setSelectedTimerSet] = useState<TimerSet | null>(
+    null
+  );
   const getInitialTime = () => {
-    switch (selectedTimerSet) {
-      case "set1":
-        return 2 * 6;
-      case "set2":
-        return 50 * 60;
-      case "set3":
-        return 90 * 60;
-      default:
-        return 25 * 60;
-    }
+    if (!selectedTimerSet) return 25 * 60; // デフォルト
+    return selectedTimerSet.workDuration * 60;
   };
 
   return (
@@ -31,14 +34,14 @@ export default function Home() {
 
       {/* タイマーセット選択 */}
       <TimerSetSelect
-        selectedTimerSet={selectedTimerSet}
-        onSelectTimerSet={(setId) => setSelectedTimerSet(setId)}
+        selectedTimerSet={selectedTimerSet?._id || ""}
+        onSelectTimerSet={(setObj) => setSelectedTimerSet(setObj)}
       />
 
       {/* タイマー表示 */}
       <Timer
         selectedTask={selectedTask}
-        selectedTimerSet={selectedTimerSet}
+        selectedTimerSet={selectedTimerSet?._id || ""}
         initialTime={getInitialTime()}
       />
     </div>
