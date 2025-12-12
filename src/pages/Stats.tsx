@@ -21,6 +21,22 @@ export default function Stats() {
   const [stats, setStats] = useState<StatsData | null>(null);
   const [logs, setLogs] = useState<LogData[]>([]);
   const [mode, setMode] = useState<"daily" | "weekly" | "monthly">("daily");
+  const [tasks, setTasks] = useState<{ _id: string; name: string }[]>([]);
+
+  useEffect(() => {
+  const fetchTasks = async () => {
+    try {
+      const res = await axios.get("http://localhost:5001/tasks", {
+        params: { userId: "testuser" },
+      });
+      setTasks(res.data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  fetchTasks();
+}, []);
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -160,8 +176,9 @@ export default function Stats() {
                   
                   {stats.taskSummary.map((t) => (
                     <p key={t.taskId} style={{ margin: "4px 0" }}>
-                      ・{t.taskId}：{(t.seconds / 60).toFixed(1)} 分
-                    </p>
+  ・{tasks.find(task => task._id === t.taskId)?.name || "不明なタスク"}：
+    {(t.seconds / 60).toFixed(1)} 分
+</p>
                   ))}
                 </div>
               )}
