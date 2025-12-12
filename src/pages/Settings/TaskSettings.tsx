@@ -55,7 +55,6 @@ export default function Settings() {
 
   return (
     <div style={{ maxWidth: "480px", margin: "0 auto" }}>
-      <h1>設定</h1>
       <h2>タスク管理</h2>
 
       {/* ▼ タスク追加 */}

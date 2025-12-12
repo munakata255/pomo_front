@@ -1,3 +1,6 @@
+import { useEffect, useState } from "react";
+import axios from "axios";
+
 type Props = {
   selectedTimerSet: string;
   onSelectTimerSet: (setId: string) => void;
@@ -7,6 +10,18 @@ export default function TimerSetSelect({
   selectedTimerSet,
   onSelectTimerSet,
 }: Props) {
+  const [timerSets, setTimerSets] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetch = async () => {
+      const res = await axios.get("http://localhost:5001/timerSets", {
+        params: { userId: "testuser" },
+      });
+      setTimerSets(res.data);
+    };
+    fetch();
+  }, []);
+
   return (
     <div style={{ margin: "20px 0" }}>
       <label>Timer Set: </label>
@@ -15,9 +30,11 @@ export default function TimerSetSelect({
         onChange={(e) => onSelectTimerSet(e.target.value)}
       >
         <option value="">選択してください</option>
-        <option value="set1">25分 + 5分</option>
-        <option value="set2">50分 + 10分</option>
-        <option value="set3">90分 + 20分</option>
+        {timerSets.map((set) => (
+          <option key={set._id} value={set._id}>
+            {set.name}（{set.workDuration}分 + {set.breakDuration}分）
+          </option>
+        ))}
       </select>
     </div>
   );
