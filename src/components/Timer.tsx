@@ -16,7 +16,7 @@ export default function Timer({
   const [startedAt, setStartedAt] = useState<Date | null>(null);
 
   const handleFinish = async () => {
-    if (!startedAt) return;
+    if (!startedAt) return console.error("startedAt is null");
 
     alert("ポモドーロ終了！");
 
