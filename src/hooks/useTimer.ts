@@ -15,7 +15,7 @@ export function useTimer(initialSeconds: number, onFinish: () => void) {
 
     intervalRef.current = window.setInterval(() => {
       setTimeLeft((prev) => {
-        timeLeftRef.current = prev - 1; 
+        timeLeftRef.current = prev - 1;
         if (prev <= 1) {
           timeLeftRef.current = 0;
           clearInterval(intervalRef.current!);
@@ -36,11 +36,11 @@ export function useTimer(initialSeconds: number, onFinish: () => void) {
 
   // Reset
   const reset = (newSeconds?: number) => {
-  stop();
-  const sec = newSeconds ?? initialSeconds;
-  setTimeLeft(sec);
-  timeLeftRef.current = sec;
-};
+    stop();
+    const sec = newSeconds ?? initialSeconds;
+    setTimeLeft(sec);
+    timeLeftRef.current = sec;
+  };
 
   // 初期値が変わった場合（タイマーセット変更）
   useEffect(() => {
@@ -52,5 +52,5 @@ export function useTimer(initialSeconds: number, onFinish: () => void) {
     return () => clearInterval(intervalRef.current!);
   }, []);
 
-  return { timeLeft,timeLeftRef, isRunning, start, stop, reset };
+  return { timeLeft, timeLeftRef, isRunning, start, stop, reset };
 }

@@ -43,6 +43,11 @@ export default function Home() {
         selectedTask={selectedTask}
         selectedTimerSet={selectedTimerSet}
         initialTime={getInitialTime()}
+        onAllFinished={() => {
+    // 初期状態に戻す
+    setSelectedTask("");
+    setSelectedTimerSet(null);
+  }}
       />
     </div>
   );

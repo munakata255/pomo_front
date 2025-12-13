@@ -15,12 +15,14 @@ type Props = {
   selectedTask: string;
   selectedTimerSet: TimerSet | null;
   initialTime: number; // ← Home側から渡す
+  onAllFinished: () => void;
 };
 
 export default function Timer({
   selectedTask,
   selectedTimerSet,
   initialTime,
+  onAllFinished,
 }: Props) {
   const startedAtRef = useRef<Date | null>(null);
 
@@ -63,7 +65,7 @@ export default function Timer({
       // work → break
       updatePhase("break");
       console.log(`フェーズ ${currentPhase} が終了しました`);
-      const nextSec = (selectedTimerSet?.breakDuration ?? 0.1) * 60;
+      const nextSec = (selectedTimerSet?.breakDuration ?? 5) * 60;
       reset(nextSec);
       currentPhaseInitialTimeRef.current = nextSec;
     } else if (currentPhase === "break") {
@@ -72,7 +74,7 @@ export default function Timer({
       if (isLastCycle) {
         // 最後の break の後だけ longBreak
         updatePhase("longBreak");
-        const nextSec = (selectedTimerSet?.longBreakDuration ?? 15) * 60;
+        const nextSec = (selectedTimerSet?.longBreakDuration ?? 0.01) * 60;
         reset(nextSec);
         currentPhaseInitialTimeRef.current = nextSec;
       } else {
@@ -82,13 +84,39 @@ export default function Timer({
         reset(nextSec);
         currentPhaseInitialTimeRef.current = nextSec;
       }
-    if (!isLastCycle) {
-      cycleRef.current += 1; // break が終わった時にサイクルを進める
-      console.log(`サイクルが進みました: ${cycleRef.current}`);
-    }
+      if (!isLastCycle) {
+        cycleRef.current += 1; // break が終わった時にサイクルを進める
+        console.log(`サイクルが進みました: ${cycleRef.current}`);
+      }
     } else if (currentPhase === "longBreak") {
-      // longBreak 終了 → 全て終了
       console.log("全フェーズ完了！");
+      // サイクルをリセット
+      cycleRef.current = 1;
+      updatePhase("work");
+      // ユーザーに続行するか確認
+      const shouldContinue =
+        window.confirm("サイクルが完了しました！続けますか？");
+
+      if (shouldContinue) {
+        cycleRef.current = 1;
+        setPhase("work");
+
+        const nextSec = (selectedTimerSet?.workDuration ?? 25) * 60;
+        reset(nextSec);
+        currentPhaseInitialTimeRef.current = nextSec;
+
+        startedAtRef.current = new Date();
+        start();
+      } else {
+        // ← これがエラーの原因なので、直接呼ばない！
+        // onAllFinished();
+
+        // ✔ 解決：イベントループの次のタイミングで呼ぶ
+        setTimeout(() => {
+          onAllFinished();
+        }, 0);
+      }
+
       return;
     }
     // ③ 次フェーズの開始を記録
@@ -159,7 +187,6 @@ export default function Timer({
       <div style={{ fontSize: "16px", marginBottom: "10px" }}>
         サイクル数: {cycleRef.current} / {selectedTimerSet?.cycles || 1}
       </div>
-  
 
       <div style={{ display: "flex", gap: "10px", justifyContent: "center" }}>
         <button onClick={handleStart} disabled={isRunning}>

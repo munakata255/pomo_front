@@ -14,7 +14,6 @@ type Props = {
   onSelectTimerSet: (set: TimerSet | null) => void;
 };
 
-
 export default function TimerSetSelect({
   selectedTimerSetId,
   onSelectTimerSet,
@@ -37,9 +36,9 @@ export default function TimerSetSelect({
       <select
         value={selectedTimerSetId}
         onChange={(e) => {
-  const selected = timerSets.find((s) => s._id === e.target.value);
-  if (selected) onSelectTimerSet(selected);
-}}
+          const selected = timerSets.find((s) => s._id === e.target.value);
+          if (selected) onSelectTimerSet(selected);
+        }}
       >
         <option value="">選択してください</option>
         {timerSets.map((set) => (
