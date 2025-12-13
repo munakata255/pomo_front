@@ -34,8 +34,8 @@ export default function Home() {
 
       {/* タイマーセット選択 */}
       <TimerSetSelect
-        selectedTimerSet={selectedTimerSet?._id || ""}
-        onSelectTimerSet={(setObj) => setSelectedTimerSet(setObj)}
+        selectedTimerSetId={selectedTimerSet?._id || ""}
+        onSelectTimerSet={(setObj: TimerSet | null) => setSelectedTimerSet(setObj)}
       />
 
       {/* タイマー表示 */}
