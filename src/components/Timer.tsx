@@ -2,9 +2,18 @@ import axios from "axios";
 import { useTimer } from "../hooks/useTimer";
 import { useState, useRef } from "react";
 
+type TimerSet = {
+  _id: string;
+  name: string;
+  workDuration: number;
+  breakDuration: number;
+  longBreakDuration?: number;
+  cycles: number;
+};
+
 type Props = {
   selectedTask: string;
-  selectedTimerSet: string;
+  selectedTimerSet: TimerSet | null;
   initialTime: number; // ← Home側から渡す
 };
 
