@@ -18,7 +18,7 @@ export default function Home() {
     null
   );
   const getInitialTime = () => {
-    if (!selectedTimerSet) return 25 * 60; // デフォルト
+    if (!selectedTimerSet) return 2 * 1; // デフォルト
     return selectedTimerSet.workDuration * 60;
   };
 

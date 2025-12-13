@@ -23,31 +23,76 @@ export default function Timer({
   initialTime,
 }: Props) {
   const startedAtRef = useRef<Date | null>(null);
-  
+
+  type Phase = "work" | "break" | "longBreak";
+
+  // 現在のフェーズ
+  const [phase, setPhase] = useState<Phase>("work");
+
+  // 今何サイクル目か
+  const cycleRef = useRef(1);
+
+  // 今のフェーズの開始時間（何秒だったか）
+  const currentPhaseInitialTimeRef = useRef(initialTime);
 
   const handleFinish = async () => {
-    if (!startedAtRef.current) return console.error("startedAt is null");
+  if (!startedAtRef.current) return console.error("startedAt is null");
+  console.log(`フェーズ ${phase} が終了しました`);
+  // ① work フェーズのときだけ学習ログを保存
+  if (phase === "work") {
+    const duration = currentPhaseInitialTimeRef.current - timeLeftRef.current;
+    await axios.post("http://localhost:5001/studyLogs", {
+      userId: "testuser",
+      taskId: selectedTask,
+      timerSetId: selectedTimerSet?._id || "",
+      startedAt: startedAtRef.current,
+      finishedAt: new Date(),
+      durationSeconds: duration,
+      status: "completed",
+    });
+  }
 
-    alert("ポモドーロ終了！");
-    console.log("Timer finished, saving log..." );
+  // ② フェーズ切り替え
+  if (phase === "work") {
+    // work → break
+    setPhase("break");
+    console.log(phase);
+    const nextSec = (selectedTimerSet?.breakDuration ?? 0.1) * 60;
+    reset(nextSec);
+    currentPhaseInitialTimeRef.current = nextSec;
+  } 
+  else if (phase === "break") {
+    // break → work or longBreak（最後だけ longBreak）
 
-    try {
-      await axios.post("http://localhost:5001/studyLogs", {
-        userId: "testuser",
-        taskId: selectedTask,
-        timerSetId: selectedTimerSet,
-        startedAt: startedAtRef.current,
-        finishedAt: new Date(),
-        durationSeconds: initialTime - timeLeftRef.current,
-        status: "completed",
-      });
+    const isLastCycle = cycleRef.current === (selectedTimerSet?.cycles ?? 1);
 
-      alert("保存完了しました🔥");
-    } catch (error) {
-      alert("保存に失敗しました");
+    if (isLastCycle) {
+      // 最後の break の後だけ longBreak
+      setPhase("longBreak");
+      const nextSec = (selectedTimerSet?.longBreakDuration ?? 15) * 60;
+      reset(nextSec);
+      currentPhaseInitialTimeRef.current = nextSec;
+    } else {
+      // 通常サイクルは work に戻る
+      setPhase("work");
+      const nextSec = (selectedTimerSet?.workDuration ?? 25) * 60;
+      reset(nextSec);
+      currentPhaseInitialTimeRef.current = nextSec;
     }
-    startedAtRef.current = null;
-  };
+
+    cycleRef.current += 1; // break が終わった時にサイクルを進める
+  } 
+  else if (phase === "longBreak") {
+    // longBreak 終了 → 全て終了
+    console.log("全フェーズ完了！");
+    return;
+  }
+
+  // ③ 次フェーズの開始を記録
+  startedAtRef.current = new Date();
+  start();
+};
+
 
   const handleStart = () => {
     startedAtRef.current = new Date();
@@ -61,8 +106,7 @@ export default function Timer({
     startedAtRef.current = null; // ← これが超重要！
   };
 
-  
-  const { timeLeft,timeLeftRef, isRunning, start, stop, reset } = useTimer(
+  const { timeLeft, timeLeftRef, isRunning, start, stop, reset } = useTimer(
     initialTime,
     handleFinish
   );
@@ -105,6 +149,11 @@ export default function Timer({
       <h2 style={{ fontSize: "48px", marginBottom: "20px" }}>
         {formatTime(timeLeft)}
       </h2>
+      <div style={{ fontSize: "24px", marginBottom: "10px" }}>
+        {phase === "work" && "🛠 作業中"}
+        {phase === "break" && "🍵 休憩中"}
+        {phase === "longBreak" && "🌿 長い休憩中"}
+      </div>
 
       <div style={{ display: "flex", gap: "10px", justifyContent: "center" }}>
         <button onClick={handleStart} disabled={isRunning}>
@@ -114,7 +163,10 @@ export default function Timer({
           Stop
         </button>
         <button onClick={handleReset}>Reset</button>
-        <button onClick={handleSave} disabled={isRunning || !startedAtRef.current}>
+        <button
+          onClick={handleSave}
+          disabled={isRunning || !startedAtRef.current}
+        >
           Save
         </button>
       </div>
