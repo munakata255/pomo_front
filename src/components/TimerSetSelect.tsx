@@ -10,13 +10,13 @@ type TimerSet = {
 };
 
 type Props = {
-  selectedTimerSet: string;
+  selectedTimerSetId: string;
   onSelectTimerSet: (set: TimerSet | null) => void;
 };
 
 
 export default function TimerSetSelect({
-  selectedTimerSet,
+  selectedTimerSetId,
   onSelectTimerSet,
 }: Props) {
   const [timerSets, setTimerSets] = useState<any[]>([]);
@@ -35,7 +35,7 @@ export default function TimerSetSelect({
     <div style={{ margin: "20px 0" }}>
       <label>Timer Set: </label>
       <select
-        value={selectedTimerSet}
+        value={selectedTimerSetId}
         onChange={(e) => {
   const selected = timerSets.find((s) => s._id === e.target.value);
   if (selected) onSelectTimerSet(selected);
