@@ -35,11 +35,12 @@ export function useTimer(initialSeconds: number, onFinish: () => void) {
   };
 
   // Reset
-  const reset = () => {
-    stop();
-    setTimeLeft(initialSeconds);
-    timeLeftRef.current = initialSeconds;
-  };
+  const reset = (newSeconds?: number) => {
+  stop();
+  const sec = newSeconds ?? initialSeconds;
+  setTimeLeft(sec);
+  timeLeftRef.current = sec;
+};
 
   // 初期値が変わった場合（タイマーセット変更）
   useEffect(() => {
