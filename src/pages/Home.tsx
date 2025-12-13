@@ -41,7 +41,7 @@ export default function Home() {
       {/* タイマー表示 */}
       <Timer
         selectedTask={selectedTask}
-        selectedTimerSet={selectedTimerSet?._id || ""}
+        selectedTimerSet={selectedTimerSet}
         initialTime={getInitialTime()}
       />
     </div>
