@@ -28,6 +28,11 @@ export default function Timer({
 
   // 現在のフェーズ
   const [phase, setPhase] = useState<Phase>("work");
+  const phaseRef = useRef<Phase>("work");
+  const updatePhase = (next: Phase) => {
+    setPhase(next);
+    phaseRef.current = next; // ← 常に最新のフェーズを保持
+  };
 
   // 今何サイクル目か
   const cycleRef = useRef(1);
@@ -36,63 +41,60 @@ export default function Timer({
   const currentPhaseInitialTimeRef = useRef(initialTime);
 
   const handleFinish = async () => {
-  if (!startedAtRef.current) return console.error("startedAt is null");
-  console.log(`フェーズ ${phase} が終了しました`);
-  // ① work フェーズのときだけ学習ログを保存
-  if (phase === "work") {
-    const duration = currentPhaseInitialTimeRef.current - timeLeftRef.current;
-    await axios.post("http://localhost:5001/studyLogs", {
-      userId: "testuser",
-      taskId: selectedTask,
-      timerSetId: selectedTimerSet?._id || "",
-      startedAt: startedAtRef.current,
-      finishedAt: new Date(),
-      durationSeconds: duration,
-      status: "completed",
-    });
-  }
-
-  // ② フェーズ切り替え
-  if (phase === "work") {
-    // work → break
-    setPhase("break");
-    console.log(phase);
-    const nextSec = (selectedTimerSet?.breakDuration ?? 0.1) * 60;
-    reset(nextSec);
-    currentPhaseInitialTimeRef.current = nextSec;
-  } 
-  else if (phase === "break") {
-    // break → work or longBreak（最後だけ longBreak）
-
-    const isLastCycle = cycleRef.current === (selectedTimerSet?.cycles ?? 1);
-
-    if (isLastCycle) {
-      // 最後の break の後だけ longBreak
-      setPhase("longBreak");
-      const nextSec = (selectedTimerSet?.longBreakDuration ?? 15) * 60;
-      reset(nextSec);
-      currentPhaseInitialTimeRef.current = nextSec;
-    } else {
-      // 通常サイクルは work に戻る
-      setPhase("work");
-      const nextSec = (selectedTimerSet?.workDuration ?? 25) * 60;
-      reset(nextSec);
-      currentPhaseInitialTimeRef.current = nextSec;
+    const currentPhase = phaseRef.current;
+    if (!startedAtRef.current) return console.error("startedAt is null");
+    console.log(`フェーズ ${currentPhase} が終了しました`);
+    // ① work フェーズのときだけ学習ログを保存
+    if (currentPhase === "work") {
+      const duration = currentPhaseInitialTimeRef.current - timeLeftRef.current;
+      await axios.post("http://localhost:5001/studyLogs", {
+        userId: "testuser",
+        taskId: selectedTask,
+        timerSetId: selectedTimerSet?._id || "",
+        startedAt: startedAtRef.current,
+        finishedAt: new Date(),
+        durationSeconds: duration,
+        status: "completed",
+      });
     }
 
-    cycleRef.current += 1; // break が終わった時にサイクルを進める
-  } 
-  else if (phase === "longBreak") {
-    // longBreak 終了 → 全て終了
-    console.log("全フェーズ完了！");
-    return;
-  }
-
-  // ③ 次フェーズの開始を記録
-  startedAtRef.current = new Date();
-  start();
-};
-
+    // ② フェーズ切り替え
+    if (currentPhase === "work") {
+      // work → break
+      updatePhase("break");
+      console.log(`フェーズ ${currentPhase} が終了しました`);
+      const nextSec = (selectedTimerSet?.breakDuration ?? 0.1) * 60;
+      reset(nextSec);
+      currentPhaseInitialTimeRef.current = nextSec;
+    } else if (currentPhase === "break") {
+      // break → work or longBreak（最後だけ longBreak）
+      const isLastCycle = cycleRef.current === (selectedTimerSet?.cycles ?? 1);
+      if (isLastCycle) {
+        // 最後の break の後だけ longBreak
+        updatePhase("longBreak");
+        const nextSec = (selectedTimerSet?.longBreakDuration ?? 15) * 60;
+        reset(nextSec);
+        currentPhaseInitialTimeRef.current = nextSec;
+      } else {
+        // 通常サイクルは work に戻る
+        updatePhase("work");
+        const nextSec = (selectedTimerSet?.workDuration ?? 25) * 60;
+        reset(nextSec);
+        currentPhaseInitialTimeRef.current = nextSec;
+      }
+    if (!isLastCycle) {
+      cycleRef.current += 1; // break が終わった時にサイクルを進める
+      console.log(`サイクルが進みました: ${cycleRef.current}`);
+    }
+    } else if (currentPhase === "longBreak") {
+      // longBreak 終了 → 全て終了
+      console.log("全フェーズ完了！");
+      return;
+    }
+    // ③ 次フェーズの開始を記録
+    startedAtRef.current = new Date();
+    start();
+  };
 
   const handleStart = () => {
     startedAtRef.current = new Date();
@@ -154,6 +156,10 @@ export default function Timer({
         {phase === "break" && "🍵 休憩中"}
         {phase === "longBreak" && "🌿 長い休憩中"}
       </div>
+      <div style={{ fontSize: "16px", marginBottom: "10px" }}>
+        サイクル数: {cycleRef.current} / {selectedTimerSet?.cycles || 1}
+      </div>
+  
 
       <div style={{ display: "flex", gap: "10px", justifyContent: "center" }}>
         <button onClick={handleStart} disabled={isRunning}>
@@ -165,7 +171,7 @@ export default function Timer({
         <button onClick={handleReset}>Reset</button>
         <button
           onClick={handleSave}
-          disabled={isRunning || !startedAtRef.current}
+          disabled={isRunning || !startedAtRef.current || phase !== "work"}
         >
           Save
         </button>
