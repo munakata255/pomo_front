@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 
 export function useTimer(initialSeconds: number, onFinish: () => void) {
+  const timeLeftRef = useRef(initialSeconds);
   const [timeLeft, setTimeLeft] = useState(initialSeconds);
   const [isRunning, setIsRunning] = useState(false);
 
@@ -14,7 +15,9 @@ export function useTimer(initialSeconds: number, onFinish: () => void) {
 
     intervalRef.current = window.setInterval(() => {
       setTimeLeft((prev) => {
+        timeLeftRef.current = prev - 1; 
         if (prev <= 1) {
+          timeLeftRef.current = 0;
           clearInterval(intervalRef.current!);
           setIsRunning(false);
           onFinish();
@@ -35,6 +38,7 @@ export function useTimer(initialSeconds: number, onFinish: () => void) {
   const reset = () => {
     stop();
     setTimeLeft(initialSeconds);
+    timeLeftRef.current = initialSeconds;
   };
 
   // 初期値が変わった場合（タイマーセット変更）
@@ -47,5 +51,5 @@ export function useTimer(initialSeconds: number, onFinish: () => void) {
     return () => clearInterval(intervalRef.current!);
   }, []);
 
-  return { timeLeft, isRunning, start, stop, reset };
+  return { timeLeft,timeLeftRef, isRunning, start, stop, reset };
 }

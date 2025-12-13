@@ -1,6 +1,6 @@
 import axios from "axios";
 import { useTimer } from "../hooks/useTimer";
-import { useState } from "react";
+import { useState, useRef } from "react";
 
 type Props = {
   selectedTask: string;
@@ -13,21 +13,23 @@ export default function Timer({
   selectedTimerSet,
   initialTime,
 }: Props) {
-  const [startedAt, setStartedAt] = useState<Date | null>(null);
+  const startedAtRef = useRef<Date | null>(null);
+  
 
   const handleFinish = async () => {
-    if (!startedAt) return console.error("startedAt is null");
+    if (!startedAtRef.current) return console.error("startedAt is null");
 
     alert("ポモドーロ終了！");
+    console.log("Timer finished, saving log..." );
 
     try {
       await axios.post("http://localhost:5001/studyLogs", {
         userId: "testuser",
         taskId: selectedTask,
         timerSetId: selectedTimerSet,
-        startedAt, // ← 修正ポイント！
+        startedAt: startedAtRef.current,
         finishedAt: new Date(),
-        durationSeconds: initialTime - timeLeft,
+        durationSeconds: initialTime - timeLeftRef.current,
         status: "completed",
       });
 
@@ -35,12 +37,11 @@ export default function Timer({
     } catch (error) {
       alert("保存に失敗しました");
     }
-
-    setStartedAt(null);
+    startedAtRef.current = null;
   };
 
   const handleStart = () => {
-    setStartedAt(new Date()); // ← 開始時刻を保存
+    startedAtRef.current = new Date();
     start(); // ← タイマー開始
   };
   const handleStop = () => {
@@ -48,11 +49,11 @@ export default function Timer({
   };
   const handleReset = () => {
     reset(); // ← useTimer の reset（時間を初期値に戻す）
-    setStartedAt(null); // ← これが超重要！
+    startedAtRef.current = null; // ← これが超重要！
   };
 
   
-  const { timeLeft, isRunning, start, stop, reset } = useTimer(
+  const { timeLeft,timeLeftRef, isRunning, start, stop, reset } = useTimer(
     initialTime,
     handleFinish
   );
@@ -65,20 +66,20 @@ export default function Timer({
   };
 
   const handleSave = async () => {
-    if (!startedAt) {
+    if (!startedAtRef.current) {
       alert("まだ開始されていません");
       return;
     }
 
     const finishedAt = new Date();
-    const durationSeconds = initialTime - timeLeft;
+    const durationSeconds = initialTime - timeLeftRef.current;
 
     try {
       await axios.post("http://localhost:5001/studyLogs", {
         userId: "testuser",
         taskId: selectedTask,
         timerSetId: selectedTimerSet,
-        startedAt,
+        startedAt: startedAtRef.current,
         finishedAt,
         durationSeconds,
         status: "interrupted",
@@ -104,7 +105,7 @@ export default function Timer({
           Stop
         </button>
         <button onClick={handleReset}>Reset</button>
-        <button onClick={handleSave} disabled={isRunning || !startedAt}>
+        <button onClick={handleSave} disabled={isRunning || !startedAtRef.current}>
           Save
         </button>
       </div>
