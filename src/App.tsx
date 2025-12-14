@@ -9,22 +9,27 @@ import Login from "./pages/Login";
 // layout
 import Layout from "./components/Layout/Layout";
 
+// context
+import { TimerProvider } from "./contexts/TimerContext";
+
 function App() {
   return (
     <BrowserRouter>
-      <Routes>
+      <TimerProvider>
+        <Routes>
 
-        {/* Layout 配下にページを入れる */}
-        <Route element={<Layout />}>
-          <Route path="/" element={<Home />} />
-          <Route path="/stats" element={<Stats />} />
-          <Route path="/settings" element={<Settings />} />
-        </Route>
+          {/* Layout 配下にページを入れる */}
+          <Route element={<Layout />}>
+            <Route path="/" element={<Home />} />
+            <Route path="/stats" element={<Stats />} />
+            <Route path="/settings" element={<Settings />} />
+          </Route>
 
-        {/* ログインは Layout なし */}
-        <Route path="/login" element={<Login />} />
+          {/* ログインは Layout なし */}
+          <Route path="/login" element={<Login />} />
 
-      </Routes>
+        </Routes>
+      </TimerProvider>
     </BrowserRouter>
   );
 }

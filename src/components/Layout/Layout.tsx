@@ -1,7 +1,24 @@
 import { NavLink, Outlet } from "react-router-dom";
+import { useTimerContext } from "../../contexts/TimerContext";
 import "./nav.css";
 
 export default function Layout() {
+  const { timeLeft, isRunning, phase } = useTimerContext();
+
+  // 秒 → mm:ss
+  const formatTime = (sec: number) => {
+    const m = Math.floor(sec / 60);
+    const s = sec % 60;
+    return `${m}:${s.toString().padStart(2, "0")}`;
+  };
+
+  const getPhaseEmoji = () => {
+    if (phase === "work") return "🛠";
+    if (phase === "break") return "🍵";
+    if (phase === "longBreak") return "🌿";
+    return "";
+  };
+
   return (
     <div>
       {/* ヘッダー */}
@@ -15,6 +32,19 @@ export default function Layout() {
         }}
       >
         <h2>Pomodoro App</h2>
+
+        {/* タイマー状態表示 */}
+        {isRunning && (
+          <div
+            style={{
+              fontSize: "18px",
+              fontWeight: "bold",
+              color: phase === "work" ? "#d32f2f" : "#1976d2",
+            }}
+          >
+            {getPhaseEmoji()} {formatTime(timeLeft)}
+          </div>
+        )}
 
         {/* ナビゲーション */}
         <nav style={{ display: "flex", gap: "20px" }}>

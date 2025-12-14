@@ -1,240 +1,23 @@
-import axios from "axios";
-import { useTimer } from "../hooks/useTimer";
-import { useState, useRef, useEffect } from "react";
+import { useTimerContext } from "../contexts/TimerContext";
 
-type TimerSet = {
-  _id: string;
-  name: string;
-  workDuration: number;
-  breakDuration: number;
-  longBreakDuration?: number;
-  cycles: number;
-};
-
-type Props = {
-  selectedTask: string;
-  selectedTimerSet: TimerSet | null;
-  initialTime: number; // ← Home側から渡す
-  onAllFinished: () => void;
-  onTimerStateChange?: (isRunning: boolean) => void;
-  onTimerStarted?: () => void;
-  onTimerReset?: () => void;
-  onResetCycle?: () => void;
-};
-
-export default function Timer({
-  selectedTask,
-  selectedTimerSet,
-  initialTime,
-  onAllFinished,
-  onTimerStateChange,
-  onTimerStarted,
-  onTimerReset,
-  onResetCycle,
-}: Props) {
-  const startedAtRef = useRef<Date | null>(null);
-
-  type Phase = "work" | "break" | "longBreak";
-
-  // 現在のフェーズ
-  const [phase, setPhase] = useState<Phase>("work");
-  const phaseRef = useRef<Phase>("work");
-  const updatePhase = (next: Phase) => {
-    setPhase(next);
-    phaseRef.current = next; // ← 常に最新のフェーズを保持
-  };
-
-  // 今何サイクル目か
-  const cycleRef = useRef(1);
-
-  // 今のフェーズの開始時間（何秒だったか）
-  const currentPhaseInitialTimeRef = useRef(initialTime);
-
-  const handleFinish = async () => {
-    const currentPhase = phaseRef.current;
-    if (!startedAtRef.current) return console.error("startedAt is null");
-    console.log(`フェーズ ${currentPhase} が終了しました`);
-    // ① work フェーズのときだけ学習ログを保存
-    if (currentPhase === "work") {
-      const duration = currentPhaseInitialTimeRef.current - timeLeftRef.current;
-      await axios.post("http://localhost:5001/studyLogs", {
-        userId: "testuser",
-        taskId: selectedTask,
-        timerSetId: selectedTimerSet?._id || "",
-        startedAt: startedAtRef.current,
-        finishedAt: new Date(),
-        durationSeconds: duration,
-        status: "completed",
-      });
-    }
-
-    // ② フェーズ切り替え
-    if (currentPhase === "work") {
-      // work → break
-      updatePhase("break");
-      console.log(`フェーズ ${currentPhase} が終了しました`);
-      const nextSec = (selectedTimerSet?.breakDuration ?? 5) * 60;
-      reset(nextSec);
-      currentPhaseInitialTimeRef.current = nextSec;
-    } else if (currentPhase === "break") {
-      // break → work or longBreak（最後だけ longBreak）
-      const isLastCycle = cycleRef.current === (selectedTimerSet?.cycles ?? 1);
-      if (isLastCycle) {
-        // 最後の break の後だけ longBreak
-        updatePhase("longBreak");
-        const nextSec = (selectedTimerSet?.longBreakDuration ?? 0.01) * 60;
-        reset(nextSec);
-        currentPhaseInitialTimeRef.current = nextSec;
-      } else {
-        // 通常サイクルは work に戻る
-        updatePhase("work");
-        const nextSec = (selectedTimerSet?.workDuration ?? 25) * 60;
-        reset(nextSec);
-        currentPhaseInitialTimeRef.current = nextSec;
-      }
-      if (!isLastCycle) {
-        cycleRef.current += 1; // break が終わった時にサイクルを進める
-        console.log(`サイクルが進みました: ${cycleRef.current}`);
-      }
-    } else if (currentPhase === "longBreak") {
-      console.log("全フェーズ完了！");
-      // サイクルをリセット
-      cycleRef.current = 1;
-      updatePhase("work");
-      // ユーザーに続行するか確認
-      const shouldContinue =
-        window.confirm("サイクルが完了しました！続けますか？");
-
-      if (shouldContinue) {
-        cycleRef.current = 1;
-        setPhase("work");
-
-        const nextSec = (selectedTimerSet?.workDuration ?? 25) * 60;
-        reset(nextSec);
-        currentPhaseInitialTimeRef.current = nextSec;
-
-        startedAtRef.current = new Date();
-        start();
-      } else {
-        // ← これがエラーの原因なので、直接呼ばない！
-        // onAllFinished();
-
-        // ✔ 解決：イベントループの次のタイミングで呼ぶ
-        setTimeout(() => {
-          onAllFinished();
-        }, 0);
-      }
-
-      return;
-    }
-    // ③ 次フェーズの開始を記録
-    startedAtRef.current = new Date();
-    start();
-  };
-
-  const handleStart = () => {
-  // 1️⃣ タスク未選択
-  if (!selectedTask) {
-    alert("Taskを選択してください");
-    return;
-  }
-
-  // 2️⃣ タイマーセット未選択
-  if (!selectedTimerSet || !selectedTimerSet._id) {
-    alert("TimerSetを選択してください");
-    return;
-  }
-
-  // 3️⃣ ここまで来たらスタートできる
-  startedAtRef.current = new Date();
-  start();
-  onTimerStateChange?.(true);
-  onTimerStarted?.();
-};
-
-  const handleStop = () => {
-    stop(); // ← 保存しない
-    onTimerStateChange?.(false);
-  };
-  const handleReset = () => {
-    // タイマーが開始されている場合は確認アラートを表示
-    if (startedAtRef.current) {
-      const confirmed = window.confirm(
-        "タイマーをリセットすると、サイクルが最初の状態（work）に戻ります。よろしいですか？"
-      );
-      if (!confirmed) {
-        return; // キャンセルされたら何もしない
-      }
-    }
-    
-    reset(); // ← useTimer の reset（時間を初期値に戻す）
-    startedAtRef.current = null; // ← これが超重要！
-    onTimerStateChange?.(false);
-    onTimerReset?.();
-    
-    // サイクルもリセット
-    cycleRef.current = 1;
-    updatePhase("work");
-    const nextSec = (selectedTimerSet?.workDuration ?? 25) * 60;
-    reset(nextSec);
-    currentPhaseInitialTimeRef.current = nextSec;
-  };
-
-  const resetCycle = () => {
-    cycleRef.current = 1;
-    updatePhase("work");
-    const nextSec = (selectedTimerSet?.workDuration ?? 25) * 60;
-    reset(nextSec);
-    currentPhaseInitialTimeRef.current = nextSec;
-    startedAtRef.current = null;
-    onTimerStateChange?.(false);
-    onTimerReset?.();
-  };
-
-  const { timeLeft, timeLeftRef, isRunning, start, stop, reset } = useTimer(
-    initialTime,
-    handleFinish
-  );
-
-  // サイクルリセット関数を親に公開
-  useEffect(() => {
-    if (onResetCycle) {
-      // この関数が呼ばれたときにresetCycleを実行できるようにする
-      (window as any).__resetTimerCycle = resetCycle;
-    }
-  }, [selectedTimerSet, onResetCycle]);
-
+export default function Timer() {
+  const {
+    timeLeft,
+    isRunning,
+    phase,
+    cycle,
+    selectedTimerSet,
+    start,
+    stop,
+    reset,
+    save,
+    hasTimerStarted,
+  } = useTimerContext();
   // 秒 → mm:ss
   const formatTime = (sec: number) => {
     const m = Math.floor(sec / 60);
     const s = sec % 60;
     return `${m}:${s.toString().padStart(2, "0")}`;
-  };
-
-  const handleSave = async () => {
-    if (!startedAtRef.current) {
-      alert("まだ開始されていません");
-      return;
-    }
-
-    const finishedAt = new Date();
-    const durationSeconds = initialTime - timeLeftRef.current;
-
-    try {
-      await axios.post("http://localhost:5001/studyLogs", {
-        userId: "testuser",
-        taskId: selectedTask,
-        timerSetId: selectedTimerSet,
-        startedAt: startedAtRef.current,
-        finishedAt,
-        durationSeconds,
-        status: "interrupted",
-      });
-
-      alert("途中までの勉強時間を保存しました✨");
-    } catch (e) {
-      alert("保存に失敗しました");
-    }
   };
 
   return (
@@ -248,20 +31,20 @@ export default function Timer({
         {phase === "longBreak" && "🌿 長い休憩中"}
       </div>
       <div style={{ fontSize: "16px", marginBottom: "10px" }}>
-        サイクル数: {cycleRef.current} / {selectedTimerSet?.cycles || 1}
+        サイクル数: {cycle} / {selectedTimerSet?.cycles || 1}
       </div>
 
       <div style={{ display: "flex", gap: "10px", justifyContent: "center" }}>
-        <button onClick={handleStart} disabled={isRunning}>
+        <button onClick={start} disabled={isRunning}>
           Start
         </button>
-        <button onClick={handleStop} disabled={!isRunning}>
+        <button onClick={stop} disabled={!isRunning}>
           Stop
         </button>
-        <button onClick={handleReset}>Reset</button>
+        <button onClick={reset}>Reset</button>
         <button
-          onClick={handleSave}
-          disabled={isRunning || !startedAtRef.current || phase !== "work"}
+          onClick={save}
+          disabled={isRunning || !hasTimerStarted || phase !== "work"}
         >
           Save
         </button>

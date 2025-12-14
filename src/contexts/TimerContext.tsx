@@ -1,0 +1,331 @@
+import {
+  createContext,
+  useContext,
+  useState,
+  useRef,
+  useEffect,
+} from "react";
+import type { ReactNode } from "react";
+import axios from "axios";
+
+type TimerSet = {
+  _id: string;
+  name: string;
+  workDuration: number;
+  breakDuration: number;
+  longBreakDuration?: number;
+  cycles: number;
+};
+
+type Phase = "work" | "break" | "longBreak";
+
+interface TimerContextType {
+  // タイマーの状態
+  timeLeft: number;
+  isRunning: boolean;
+  phase: Phase;
+  cycle: number;
+  
+  // 選択中のタスク・タイマーセット
+  selectedTask: string;
+  selectedTimerSet: TimerSet | null;
+  
+  // 操作関数
+  setSelectedTask: (taskId: string) => void;
+  setSelectedTimerSet: (timerSet: TimerSet | null) => void;
+  start: () => void;
+  stop: () => void;
+  reset: () => void;
+  save: () => Promise<void>;
+  
+  // ステータス
+  hasTimerStarted: boolean;
+}
+
+const TimerContext = createContext<TimerContextType | undefined>(undefined);
+
+export function TimerProvider({ children }: { children: ReactNode }) {
+  const [selectedTask, setSelectedTask] = useState<string>("");
+  const [selectedTimerSet, setSelectedTimerSet] = useState<TimerSet | null>(null);
+  const [timeLeft, setTimeLeft] = useState(0);
+  const [isRunning, setIsRunning] = useState(false);
+  const [phase, setPhase] = useState<Phase>("work");
+  const [cycle, setCycle] = useState(1);
+  const [hasTimerStarted, setHasTimerStarted] = useState(false);
+
+  const timeLeftRef = useRef(0);
+  const phaseRef = useRef<Phase>("work");
+  const cycleRef = useRef(1);
+  const intervalRef = useRef<number | null>(null);
+  const startedAtRef = useRef<Date | null>(null);
+  const currentPhaseInitialTimeRef = useRef(0);
+
+  // タイマーが終了したときの処理
+  const handleFinish = async () => {
+    const currentPhase = phaseRef.current;
+    if (!startedAtRef.current) return;
+
+    // work フェーズのときだけ学習ログを保存
+    if (currentPhase === "work") {
+      const duration = currentPhaseInitialTimeRef.current - timeLeftRef.current;
+      try {
+        await axios.post("http://localhost:5001/studyLogs", {
+          userId: "testuser",
+          taskId: selectedTask,
+          timerSetId: selectedTimerSet?._id || "",
+          startedAt: startedAtRef.current,
+          finishedAt: new Date(),
+          durationSeconds: duration,
+          status: "completed",
+        });
+      } catch (e) {
+        console.error("学習ログの保存に失敗:", e);
+      }
+    }
+
+    // フェーズ切り替え
+    if (currentPhase === "work") {
+      // work → break
+      phaseRef.current = "break";
+      setPhase("break");
+      const nextSec = (selectedTimerSet?.breakDuration ?? 5) * 60;
+      setTimeLeft(nextSec);
+      timeLeftRef.current = nextSec;
+      currentPhaseInitialTimeRef.current = nextSec;
+      startedAtRef.current = new Date();
+      startTimer();
+    } else if (currentPhase === "break") {
+      const isLastCycle = cycleRef.current === (selectedTimerSet?.cycles ?? 1);
+      if (isLastCycle) {
+        // 最後の break の後は longBreak
+        phaseRef.current = "longBreak";
+        setPhase("longBreak");
+        const nextSec = (selectedTimerSet?.longBreakDuration ?? 0.01) * 60;
+        setTimeLeft(nextSec);
+        timeLeftRef.current = nextSec;
+        currentPhaseInitialTimeRef.current = nextSec;
+        startedAtRef.current = new Date();
+        startTimer();
+      } else {
+        // 通常サイクルは work に戻る
+        phaseRef.current = "work";
+        setPhase("work");
+        cycleRef.current += 1;
+        setCycle(cycleRef.current);
+        const nextSec = (selectedTimerSet?.workDuration ?? 25) * 60;
+        setTimeLeft(nextSec);
+        timeLeftRef.current = nextSec;
+        currentPhaseInitialTimeRef.current = nextSec;
+        startedAtRef.current = new Date();
+        startTimer();
+      }
+    } else if (currentPhase === "longBreak") {
+      // 全サイクル完了
+      const shouldContinue = window.confirm("サイクルが完了しました！続けますか？");
+      if (shouldContinue) {
+        cycleRef.current = 1;
+        setCycle(1);
+        phaseRef.current = "work";
+        setPhase("work");
+        const nextSec = (selectedTimerSet?.workDuration ?? 25) * 60;
+        setTimeLeft(nextSec);
+        timeLeftRef.current = nextSec;
+        currentPhaseInitialTimeRef.current = nextSec;
+        startedAtRef.current = new Date();
+        startTimer();
+      } else {
+        // リセット
+        resetTimer();
+      }
+    }
+  };
+
+  // タイマーを開始する内部関数
+  const startTimer = () => {
+    if (intervalRef.current !== null) return;
+    
+    setIsRunning(true);
+    intervalRef.current = window.setInterval(() => {
+      setTimeLeft((prev) => {
+        timeLeftRef.current = prev - 1;
+        if (prev <= 1) {
+          clearInterval(intervalRef.current!);
+          intervalRef.current = null;
+          setIsRunning(false);
+          handleFinish();
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  };
+
+  // ユーザーがStartボタンを押したとき
+  const start = () => {
+    if (!selectedTask) {
+      alert("Taskを選択してください");
+      return;
+    }
+    if (!selectedTimerSet || !selectedTimerSet._id) {
+      alert("TimerSetを選択してください");
+      return;
+    }
+
+    if (intervalRef.current !== null) return; // 既に実行中
+    
+    if (!hasTimerStarted) {
+      // 初回スタート時は work フェーズの時間を設定
+      const initialTime = selectedTimerSet.workDuration * 60;
+      setTimeLeft(initialTime);
+      timeLeftRef.current = initialTime;
+      currentPhaseInitialTimeRef.current = initialTime;
+      phaseRef.current = "work";
+      setPhase("work");
+      cycleRef.current = 1;
+      setCycle(1);
+      setHasTimerStarted(true);
+    }
+
+    startedAtRef.current = new Date();
+    startTimer();
+  };
+
+  // 一時停止
+  const stop = () => {
+    if (intervalRef.current !== null) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+    setIsRunning(false);
+  };
+
+  // リセット
+  const reset = () => {
+    if (startedAtRef.current) {
+      const confirmed = window.confirm(
+        "タイマーをリセットすると、サイクルが最初の状態（work）に戻ります。よろしいですか？"
+      );
+      if (!confirmed) return;
+    }
+    resetTimer();
+  };
+
+  const resetTimer = () => {
+    stop();
+    cycleRef.current = 1;
+    setCycle(1);
+    phaseRef.current = "work";
+    setPhase("work");
+    startedAtRef.current = null;
+    setHasTimerStarted(false);
+    
+    if (selectedTimerSet) {
+      const initialTime = selectedTimerSet.workDuration * 60;
+      setTimeLeft(initialTime);
+      timeLeftRef.current = initialTime;
+      currentPhaseInitialTimeRef.current = initialTime;
+    } else {
+      setTimeLeft(0);
+      timeLeftRef.current = 0;
+      currentPhaseInitialTimeRef.current = 0;
+    }
+  };
+
+  // 途中保存
+  const save = async () => {
+    if (!startedAtRef.current) {
+      alert("まだ開始されていません");
+      return;
+    }
+    if (phase !== "work") {
+      alert("作業フェーズでのみ保存できます");
+      return;
+    }
+
+    const finishedAt = new Date();
+    const durationSeconds = currentPhaseInitialTimeRef.current - timeLeftRef.current;
+
+    try {
+      await axios.post("http://localhost:5001/studyLogs", {
+        userId: "testuser",
+        taskId: selectedTask,
+        timerSetId: selectedTimerSet?._id,
+        startedAt: startedAtRef.current,
+        finishedAt,
+        durationSeconds,
+        status: "interrupted",
+      });
+      alert("途中までの勉強時間を保存しました✨");
+    } catch (e) {
+      alert("保存に失敗しました");
+      console.error(e);
+    }
+  };
+
+  // タイマーセットが変更されたときの処理
+  const handleSetTimerSet = (timerSet: TimerSet | null) => {
+    if (hasTimerStarted) {
+      const confirmed = window.confirm(
+        "タイマー実行中です。Timer Setを変更するとサイクルが最初の状態（work）にリセットされます。よろしいですか？"
+      );
+      if (!confirmed) return;
+      resetTimer();
+    }
+    setSelectedTimerSet(timerSet);
+    if (timerSet) {
+      const initialTime = timerSet.workDuration * 60;
+      setTimeLeft(initialTime);
+      timeLeftRef.current = initialTime;
+      currentPhaseInitialTimeRef.current = initialTime;
+    }
+  };
+
+  // タスクが変更されたときの処理
+  const handleSetTask = (taskId: string) => {
+    if (hasTimerStarted) {
+      const confirmed = window.confirm(
+        "タイマー実行中です。タスクを変更するとサイクルが最初の状態（work）にリセットされます。よろしいですか？"
+      );
+      if (!confirmed) return;
+      resetTimer();
+    }
+    setSelectedTask(taskId);
+  };
+
+  // アンマウント時のクリーンアップ
+  useEffect(() => {
+    return () => {
+      if (intervalRef.current !== null) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, []);
+
+  const value: TimerContextType = {
+    timeLeft,
+    isRunning,
+    phase,
+    cycle,
+    selectedTask,
+    selectedTimerSet,
+    setSelectedTask: handleSetTask,
+    setSelectedTimerSet: handleSetTimerSet,
+    start,
+    stop,
+    reset,
+    save,
+    hasTimerStarted,
+  };
+
+  return (
+    <TimerContext.Provider value={value}>{children}</TimerContext.Provider>
+  );
+}
+
+export function useTimerContext() {
+  const context = useContext(TimerContext);
+  if (context === undefined) {
+    throw new Error("useTimerContext must be used within a TimerProvider");
+  }
+  return context;
+}
