@@ -5,6 +5,8 @@ import Timer from "../components/Timer";
 
 export default function Home() {
   const [selectedTask, setSelectedTask] = useState<string>("");
+  const [, setIsTimerRunning] = useState(false);
+  const [hasTimerStarted, setHasTimerStarted] = useState(false);
   type TimerSet = {
     _id: string;
     name: string;
@@ -22,6 +24,24 @@ export default function Home() {
     return selectedTimerSet.workDuration * 60;
   };
 
+  const handleTaskChange = (taskId: string) => {
+    if (hasTimerStarted) {
+      const confirmed = window.confirm(
+        "タイマー実行中です。タスクを変更するとサイクルが最初の状態（work）にリセットされます。よろしいですか？"
+      );
+      if (confirmed) {
+        // サイクルをリセット
+        if ((window as any).__resetTimerCycle) {
+          (window as any).__resetTimerCycle();
+        }
+        setSelectedTask(taskId);
+        setHasTimerStarted(false);
+      }
+    } else {
+      setSelectedTask(taskId);
+    }
+  };
+
   return (
     <div style={{ maxWidth: "480px", margin: "0 auto", textAlign: "center" }}>
       <h1>Pomodoro Timer</h1>
@@ -29,7 +49,7 @@ export default function Home() {
       {/* タスク選択 */}
       <TaskSelect
         selectedTask={selectedTask}
-        onSelectTask={(taskId) => setSelectedTask(taskId)}
+        onSelectTask={handleTaskChange}
       />
 
       {/* タイマーセット選択 */}
@@ -49,7 +69,13 @@ export default function Home() {
           // 初期状態に戻す
           setSelectedTask("");
           setSelectedTimerSet(null);
+          setIsTimerRunning(false);
+          setHasTimerStarted(false);
         }}
+        onTimerStateChange={setIsTimerRunning}
+        onTimerStarted={() => setHasTimerStarted(true)}
+        onTimerReset={() => setHasTimerStarted(false)}
+        onResetCycle={() => {}}
       />
     </div>
   );

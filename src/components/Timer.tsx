@@ -1,6 +1,6 @@
 import axios from "axios";
 import { useTimer } from "../hooks/useTimer";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 
 type TimerSet = {
   _id: string;
@@ -16,6 +16,10 @@ type Props = {
   selectedTimerSet: TimerSet | null;
   initialTime: number; // ← Home側から渡す
   onAllFinished: () => void;
+  onTimerStateChange?: (isRunning: boolean) => void;
+  onTimerStarted?: () => void;
+  onTimerReset?: () => void;
+  onResetCycle?: () => void;
 };
 
 export default function Timer({
@@ -23,6 +27,10 @@ export default function Timer({
   selectedTimerSet,
   initialTime,
   onAllFinished,
+  onTimerStateChange,
+  onTimerStarted,
+  onTimerReset,
+  onResetCycle,
 }: Props) {
   const startedAtRef = useRef<Date | null>(null);
 
@@ -140,20 +148,61 @@ export default function Timer({
   // 3️⃣ ここまで来たらスタートできる
   startedAtRef.current = new Date();
   start();
+  onTimerStateChange?.(true);
+  onTimerStarted?.();
 };
 
   const handleStop = () => {
     stop(); // ← 保存しない
+    onTimerStateChange?.(false);
   };
   const handleReset = () => {
+    // タイマーが開始されている場合は確認アラートを表示
+    if (startedAtRef.current) {
+      const confirmed = window.confirm(
+        "タイマーをリセットすると、サイクルが最初の状態（work）に戻ります。よろしいですか？"
+      );
+      if (!confirmed) {
+        return; // キャンセルされたら何もしない
+      }
+    }
+    
     reset(); // ← useTimer の reset（時間を初期値に戻す）
     startedAtRef.current = null; // ← これが超重要！
+    onTimerStateChange?.(false);
+    onTimerReset?.();
+    
+    // サイクルもリセット
+    cycleRef.current = 1;
+    updatePhase("work");
+    const nextSec = (selectedTimerSet?.workDuration ?? 25) * 60;
+    reset(nextSec);
+    currentPhaseInitialTimeRef.current = nextSec;
+  };
+
+  const resetCycle = () => {
+    cycleRef.current = 1;
+    updatePhase("work");
+    const nextSec = (selectedTimerSet?.workDuration ?? 25) * 60;
+    reset(nextSec);
+    currentPhaseInitialTimeRef.current = nextSec;
+    startedAtRef.current = null;
+    onTimerStateChange?.(false);
+    onTimerReset?.();
   };
 
   const { timeLeft, timeLeftRef, isRunning, start, stop, reset } = useTimer(
     initialTime,
     handleFinish
   );
+
+  // サイクルリセット関数を親に公開
+  useEffect(() => {
+    if (onResetCycle) {
+      // この関数が呼ばれたときにresetCycleを実行できるようにする
+      (window as any).__resetTimerCycle = resetCycle;
+    }
+  }, [selectedTimerSet, onResetCycle]);
 
   // 秒 → mm:ss
   const formatTime = (sec: number) => {
