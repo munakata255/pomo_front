@@ -125,9 +125,23 @@ export default function Timer({
   };
 
   const handleStart = () => {
-    startedAtRef.current = new Date();
-    start(); // ← タイマー開始
-  };
+  // 1️⃣ タスク未選択
+  if (!selectedTask) {
+    alert("タスクを選択してください");
+    return;
+  }
+
+  // 2️⃣ タイマーセット未選択
+  if (!selectedTimerSet || !selectedTimerSet._id) {
+    alert("タイマーセットを選択してください");
+    return;
+  }
+
+  // 3️⃣ ここまで来たらスタートできる
+  startedAtRef.current = new Date();
+  start();
+};
+
   const handleStop = () => {
     stop(); // ← 保存しない
   };
