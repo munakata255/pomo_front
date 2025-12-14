@@ -189,22 +189,6 @@ export default function Stats() {
   return (
     <div style={{ maxWidth: "480px", margin: "0 auto", textAlign: "center" }}>
       <h1>学習統計</h1>
-      <div style={{ marginBottom: "20px" }}>
-        <button onClick={() => setMode("daily")}>日別</button>
-        <button
-          onClick={() => setMode("weekly")}
-          style={{ marginLeft: "10px" }}
-        >
-          週別
-        </button>
-        <button
-          onClick={() => setMode("monthly")}
-          style={{ marginLeft: "10px" }}
-        >
-          月別
-        </button>
-      </div>
-
       {!stats && <p>読み込み中...</p>}
 
       {stats && (
@@ -303,6 +287,22 @@ export default function Stats() {
           )}
         </>
       )}
+      <h2>日別学習時間</h2>
+      <div style={{ marginBottom: "20px" }}>
+        <button onClick={() => setMode("daily")}>日別</button>
+        <button
+          onClick={() => setMode("weekly")}
+          style={{ marginLeft: "10px" }}
+        >
+          週別
+        </button>
+        <button
+          onClick={() => setMode("monthly")}
+          style={{ marginLeft: "10px" }}
+        >
+          月別
+        </button>
+      </div>
       <StatsGraph data={chartData} />
     </div>
   );

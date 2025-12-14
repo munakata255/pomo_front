@@ -35,7 +35,9 @@ export default function Home() {
       {/* タイマーセット選択 */}
       <TimerSetSelect
         selectedTimerSetId={selectedTimerSet?._id || ""}
-        onSelectTimerSet={(setObj: TimerSet | null) => setSelectedTimerSet(setObj)}
+        onSelectTimerSet={(setObj: TimerSet | null) =>
+          setSelectedTimerSet(setObj)
+        }
       />
 
       {/* タイマー表示 */}
@@ -44,10 +46,10 @@ export default function Home() {
         selectedTimerSet={selectedTimerSet}
         initialTime={getInitialTime()}
         onAllFinished={() => {
-    // 初期状態に戻す
-    setSelectedTask("");
-    setSelectedTimerSet(null);
-  }}
+          // 初期状態に戻す
+          setSelectedTask("");
+          setSelectedTimerSet(null);
+        }}
       />
     </div>
   );

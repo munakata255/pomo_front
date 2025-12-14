@@ -7,8 +7,6 @@ type Props = {
 export default function StatsGraph({ data }: Props) {
   return (
     <div style={{ marginTop: "20px" }}>
-      <h2>日別学習時間</h2>
-
       <LineChart width={400} height={250} data={data}>
         <CartesianGrid stroke="#ccc" strokeDasharray="5 5" />
         <XAxis dataKey="date" />
