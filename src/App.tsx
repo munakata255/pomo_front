@@ -7,7 +7,7 @@ import Settings from "./pages/Settings/index";
 import Login from "./pages/Login";
 
 // layout
-import Layout from "./components/Layout";
+import Layout from "./components/Layout/Layout";
 
 function App() {
   return (

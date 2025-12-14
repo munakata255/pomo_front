@@ -127,13 +127,13 @@ export default function Timer({
   const handleStart = () => {
   // 1️⃣ タスク未選択
   if (!selectedTask) {
-    alert("タスクを選択してください");
+    alert("Taskを選択してください");
     return;
   }
 
   // 2️⃣ タイマーセット未選択
   if (!selectedTimerSet || !selectedTimerSet._id) {
-    alert("タイマーセットを選択してください");
+    alert("TimerSetを選択してください");
     return;
   }
 
