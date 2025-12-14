@@ -23,14 +23,14 @@ export default function Stats() {
   const [mode, setMode] = useState<"daily" | "weekly" | "monthly">("daily");
   const [tasks, setTasks] = useState<{ _id: string; name: string }[]>([]);
   const [todayStats, setTodayStats] = useState<{
-  totalSeconds: number;
-  taskSummary: { taskId: string; taskName: string; seconds: number }[];
-} | null>(null);
-const [selectedDate, setSelectedDate] = useState("");
-const [selectedDateStats, setSelectedDateStats] = useState<{
-  totalSeconds: number;
-  taskSummary: { taskId: string; taskName: string; seconds: number }[];
-} | null>(null);
+    totalSeconds: number;
+    taskSummary: { taskId: string; taskName: string; seconds: number }[];
+  } | null>(null);
+  const [selectedDate, setSelectedDate] = useState("");
+  const [selectedDateStats, setSelectedDateStats] = useState<{
+    totalSeconds: number;
+    taskSummary: { taskId: string; taskName: string; seconds: number }[];
+  } | null>(null);
 
   useEffect(() => {
     const fetchTasks = async () => {
@@ -78,42 +78,43 @@ const [selectedDateStats, setSelectedDateStats] = useState<{
     fetchLogs();
   }, []);
 
-   useEffect(() => {
-  const fetchTodayStats = async () => {
+  useEffect(() => {
+    const fetchTodayStats = async () => {
+      try {
+        const res = await axios.get("http://localhost:5001/stats/today", {
+          params: { userId: "testuser" },
+        });
+        setTodayStats(res.data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchTodayStats();
+  }, []);
+  const fetchStatsByDate = async (date: string) => {
+    if (!date) return;
+
     try {
-      const res = await axios.get("http://localhost:5001/stats/today", {
-        params: { userId: "testuser" },
+      const res = await axios.get("http://localhost:5001/stats/byDate", {
+        params: { userId: "testuser", date },
       });
-      setTodayStats(res.data);
+
+      // taskName を tasks から補完する
+      const withNames = res.data.taskSummary.map((t: any) => ({
+        ...t,
+        taskName:
+          tasks.find((task) => task._id === t.taskId)?.name || "不明なタスク",
+      }));
+
+      setSelectedDateStats({
+        totalSeconds: res.data.totalSeconds,
+        taskSummary: withNames,
+      });
     } catch (error) {
       console.error(error);
     }
   };
-
-  fetchTodayStats();
-}, []);
-const fetchStatsByDate = async (date: string) => {
-  if (!date) return;
-
-  try {
-    const res = await axios.get("http://localhost:5001/stats/byDate", {
-      params: { userId: "testuser", date },
-    });
-
-    // taskName を tasks から補完する
-    const withNames = res.data.taskSummary.map((t: any) => ({
-      ...t,
-      taskName: tasks.find((task) => task._id === t.taskId)?.name || "不明なタスク",
-    }));
-
-    setSelectedDateStats({
-      totalSeconds: res.data.totalSeconds,
-      taskSummary: withNames,
-    });
-  } catch (error) {
-    console.error(error);
-  }
-};
   // 日別の学習時間を集計
   const dailyDataObj = logs.reduce((acc: any, log) => {
     const day = log.startedAt.slice(0, 10); // "YYYY-MM-DD" に切り出し
@@ -211,61 +212,76 @@ const fetchStatsByDate = async (date: string) => {
           <p>総学習時間：{formatMinutes(stats.totalSeconds)} 分</p>
           <p>記録回数：{stats.logCount} 回</p>
 
-
           {todayStats && (
-  <div style={{ marginTop: "20px" }}>
-    <div style={{ marginTop: "20px" }}>
-  <input
-    type="date"
-    value={selectedDate}
-    onChange={(e) => setSelectedDate(e.target.value)}
-  />
+            <div style={{ marginTop: "20px" }}>
+              <div style={{ marginTop: "20px" }}>
+                <input
+                  type="date"
+                  value={selectedDate}
+                  onChange={(e) => setSelectedDate(e.target.value)}
+                />
 
-  <button
-    onClick={() => fetchStatsByDate(selectedDate)}
-    disabled={!selectedDate}
-    style={{ marginLeft: "6px" }}
-  >
-    この日を見る
-  </button>
+                <button
+                  onClick={() => fetchStatsByDate(selectedDate)}
+                  disabled={!selectedDate}
+                  style={{ marginLeft: "6px" }}
+                >
+                  この日を見る
+                </button>
 
-  <button
-    onClick={() => {
-      setSelectedDateStats(null);
-      setSelectedDate("");
-    }}
-    style={{ marginLeft: "6px" }}
-  >
-    今日に戻る
-  </button>
-{/* ▼ 選択日のデータ or 今日のデータ ▼ */}
-{(selectedDateStats || todayStats) && (
-  <div style={{ marginTop: "20px" }}>
+                <button
+                  onClick={() => {
+                    setSelectedDateStats(null);
+                    setSelectedDate("");
+                  }}
+                  disabled={selectedDate === "" && selectedDateStats === null}
+                  style={{ marginLeft: "6px" }}
+                >
+                  今日に戻る
+                </button>
+                {/* ▼ 今日の学習（選択日の結果がまだない場合だけ表示） */}
+                {selectedDateStats === null && todayStats && (
+                  <div style={{ marginTop: "20px" }}>
+                    <h2>📅 今日の学習</h2>
+                    <p>合計：{(todayStats.totalSeconds / 60).toFixed(1)} 分</p>
 
-    <h2>
-      📅 {selectedDate ? `${selectedDate} の学習` : "今日の学習"}
-    </h2>
+                    {/* タスク別（ある時だけ） */}
+                    {todayStats.taskSummary?.length > 0 && (
+                      <>
+                        <h3 style={{ marginTop: "10px" }}>タスク別</h3>
+                        {todayStats.taskSummary.map((t) => (
+                          <p key={t.taskId}>
+                            ・{t.taskName}：{(t.seconds / 60).toFixed(1)} 分
+                          </p>
+                        ))}
+                      </>
+                    )}
+                  </div>
+                )}
 
-    <p>
-      合計：
-      {(
-        ((selectedDateStats?.totalSeconds ?? todayStats!.totalSeconds) / 60)
-      ).toFixed(1)} 分
-    </p>
-
-    <h3 style={{ marginTop: "10px" }}>タスク別</h3>
-
-    {(selectedDateStats?.taskSummary || todayStats!.taskSummary).map((t) => (
-      <p key={t.taskId}>
-        ・{t.taskName}：{(t.seconds / 60).toFixed(1)} 分
-      </p>
-    ))}
-
-  </div>
-)}</div>
-</div>
-)}
-
+                {/* ▼ 選択日の学習（APIを押してデータが来た時だけ表示） */}
+                {selectedDateStats !== null && (
+                  <div style={{ marginTop: "20px" }}>
+                    <h2>📅 {selectedDate} の学習</h2>
+                    <p>
+                      合計：{(selectedDateStats.totalSeconds / 60).toFixed(1)}{" "}
+                      分
+                    </p>
+                    {selectedDateStats.taskSummary.length > 0 && (
+                      <>
+                        <h3 style={{ marginTop: "10px" }}>タスク別</h3>
+                        {selectedDateStats.taskSummary.map((t) => (
+                          <p key={t.taskId}>
+                            ・{t.taskName}：{(t.seconds / 60).toFixed(1)} 分
+                          </p>
+                        ))}
+                      </>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
           {/* ▼ タスク別統計 */}
           {stats.taskSummary && stats.taskSummary.length > 0 && (
             <div style={{ marginTop: "3px" }}>
