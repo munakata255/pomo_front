@@ -42,6 +42,24 @@ export default function Home() {
     }
   };
 
+  const handleTimerSetChange = (setObj: TimerSet | null) => {
+    if (hasTimerStarted) {
+      const confirmed = window.confirm(
+        "タイマー実行中です。Timer Setを変更するとサイクルが最初の状態（work）にリセットされます。よろしいですか？"
+      );
+      if (confirmed) {
+        // サイクルをリセット
+        if ((window as any).__resetTimerCycle) {
+          (window as any).__resetTimerCycle();
+        }
+        setSelectedTimerSet(setObj);
+        setHasTimerStarted(false);
+      }
+    } else {
+      setSelectedTimerSet(setObj);
+    }
+  };
+
   return (
     <div style={{ maxWidth: "480px", margin: "0 auto", textAlign: "center" }}>
       <h1>Pomodoro Timer</h1>
@@ -55,9 +73,7 @@ export default function Home() {
       {/* タイマーセット選択 */}
       <TimerSetSelect
         selectedTimerSetId={selectedTimerSet?._id || ""}
-        onSelectTimerSet={(setObj: TimerSet | null) =>
-          setSelectedTimerSet(setObj)
-        }
+        onSelectTimerSet={handleTimerSetChange}
       />
 
       {/* タイマー表示 */}
