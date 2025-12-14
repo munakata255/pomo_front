@@ -22,6 +22,11 @@ export default function Stats() {
   const [logs, setLogs] = useState<LogData[]>([]);
   const [mode, setMode] = useState<"daily" | "weekly" | "monthly">("daily");
   const [tasks, setTasks] = useState<{ _id: string; name: string }[]>([]);
+  const [todayStats, setTodayStats] = useState<{
+  totalSeconds: number;
+  taskSummary: { taskId: string; taskName: string; seconds: number }[];
+} | null>(null);
+
 
   useEffect(() => {
     const fetchTasks = async () => {
@@ -66,9 +71,24 @@ export default function Stats() {
         console.error(error);
       }
     };
-
     fetchLogs();
   }, []);
+
+   useEffect(() => {
+  const fetchTodayStats = async () => {
+    try {
+      const res = await axios.get("http://localhost:5001/stats/today", {
+        params: { userId: "testuser" },
+      });
+      setTodayStats(res.data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  fetchTodayStats();
+}, []);
+
   // 日別の学習時間を集計
   const dailyDataObj = logs.reduce((acc: any, log) => {
     const day = log.startedAt.slice(0, 10); // "YYYY-MM-DD" に切り出し
@@ -165,6 +185,22 @@ export default function Stats() {
         <>
           <p>総学習時間：{formatMinutes(stats.totalSeconds)} 分</p>
           <p>記録回数：{stats.logCount} 回</p>
+
+
+          {todayStats && (
+  <div style={{ marginTop: "20px" }}>
+    <h2>📅 今日の学習</h2>
+    <p>合計：{(todayStats.totalSeconds / 60).toFixed(1)} 分</p>
+
+    <h3 style={{ marginTop: "10px" }}>タスク別</h3>
+
+    {todayStats.taskSummary.map((t) => (
+      <p key={t.taskId}>
+        ・{t.taskName}：{(t.seconds / 60).toFixed(1)} 分
+      </p>
+    ))}
+  </div>
+)}
 
           {/* ▼ タスク別統計 */}
           {stats.taskSummary && stats.taskSummary.length > 0 && (
