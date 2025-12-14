@@ -7,6 +7,7 @@ type TimerSet = {
   workDuration: number;
   breakDuration: number;
   cycles: number;
+  longBreakDuration: number;
 };
 
 export default function TimerSetSettings() {
@@ -16,6 +17,7 @@ export default function TimerSetSettings() {
     workDuration: 25,
     breakDuration: 5,
     cycles: 1,
+    longBreakDuration: 15,
   });
 
   useEffect(() => {
@@ -34,7 +36,7 @@ export default function TimerSetSettings() {
       ...newSet,
     });
     setTimerSets([...timerSets, res.data]);
-    setNewSet({ name: "", workDuration: 25, breakDuration: 5, cycles: 1 });
+    setNewSet({ name: "", workDuration: 25, breakDuration: 5, cycles: 1, longBreakDuration: 15 });
   };
 
   const deleteSet = async (id: string) => {
@@ -73,15 +75,23 @@ export default function TimerSetSettings() {
           setNewSet({ ...newSet, cycles: Number(e.target.value) })
         }
       />
+      <input
+        type="number"
+        value={newSet.longBreakDuration}
+        onChange={(e) =>
+          setNewSet({ ...newSet, longBreakDuration: Number(e.target.value) })
+        }
+      />
 
       <button onClick={addSet}>追加</button>
 
+      <h2>既存のタイマーセット</h2>
       {timerSets.map((set) => (
         <div key={set._id} style={{ border: "1px solid #ccc", margin: "5px" }}>
           <strong>{set.name}</strong>
           <p>
             作業 {set.workDuration}分 / 休憩 {set.breakDuration}分 / {set.cycles}
-            サイクル
+            サイクル  / 長休憩 {set.longBreakDuration}分
           </p>
           <button onClick={() => deleteSet(set._id)}>削除</button>
         </div>
