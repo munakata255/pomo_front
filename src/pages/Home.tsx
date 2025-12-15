@@ -6,6 +6,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { signOut } from "firebase/auth";
 import { auth } from "../lib/firebase";
+import "./Home.css";
 
 export default function Home() {
   const { selectedTask, selectedTimerSet, setSelectedTask, setSelectedTimerSet } =
@@ -27,22 +28,22 @@ export default function Home() {
   };
 
   return (
-    <div style={{ maxWidth: "480px", margin: "0 auto", textAlign: "center" }}>
+    <div className="home-container">
       <h1>Pomodoro Timer</h1>
 
       {/* ログイン状態の表示 */}
-      <div style={{ marginBottom: "20px", padding: "10px", backgroundColor: "#f5f5f5", borderRadius: "8px" }}>
+      <div className="auth-card">
         {user ? (
           <div>
-            <p style={{ margin: "5px 0" }}>✅ ログイン中: {user.email}</p>
-            <button onClick={handleLogout} style={{ marginTop: "5px" }}>
+            <p>✅ ログイン中: {user.email}</p>
+            <button className="auth-btn" onClick={handleLogout}>
               ログアウト
             </button>
           </div>
         ) : (
           <div>
-            <p style={{ margin: "5px 0" }}>❌ ログインしていません</p>
-            <button onClick={() => navigate("/login")} style={{ marginTop: "5px" }}>
+            <p>❌ ログインしていません</p>
+            <button className="auth-btn" onClick={() => navigate("/login")}>
               ログインページへ
             </button>
           </div>
@@ -50,19 +51,33 @@ export default function Home() {
       </div>
 
       {/* タスク選択 */}
-      <TaskSelect
-        selectedTask={selectedTask}
-        onSelectTask={setSelectedTask}
-      />
+      <div className="selection-section">
+        <TaskSelect
+          selectedTask={selectedTask}
+          onSelectTask={setSelectedTask}
+        />
+      </div>
 
       {/* タイマーセット選択 */}
-      <TimerSetSelect
-        selectedTimerSetId={selectedTimerSet?._id || ""}
-        onSelectTimerSet={setSelectedTimerSet}
-      />
+      <div className="selection-section">
+        <TimerSetSelect
+          selectedTimerSetId={selectedTimerSet?._id || ""}
+          onSelectTimerSet={setSelectedTimerSet}
+        />
+      </div>
+
+      {/* 選択情報表示 */}
+      {selectedTask && selectedTimerSet && (
+        <div className="selected-info">
+          <p>⏱️ <strong>{selectedTimerSet.name}</strong></p>
+          <p>作業: {selectedTimerSet.workDuration}分 | 休憩: {selectedTimerSet.breakDuration}分 | {selectedTimerSet.cycles}サイクル</p>
+        </div>
+      )}
 
       {/* タイマー表示 */}
-      <Timer />
+      <div className="timer-wrapper">
+        <Timer />
+      </div>
     </div>
   );
 }
