@@ -4,6 +4,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import Stats from "./pages/Stats";
 import Settings from "./pages/Settings/index";
+import About from "./pages/About";
 import Login from "./pages/Login";
 
 // layout
@@ -23,6 +24,7 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/stats" element={<Stats />} />
             <Route path="/settings" element={<Settings />} />
+            <Route path="/about" element={<About />} />
           </Route>
 
           {/* ログインは Layout なし */}

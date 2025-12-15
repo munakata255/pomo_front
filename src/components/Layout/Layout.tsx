@@ -75,6 +75,15 @@ export default function Layout() {
           >
             Settings
           </NavLink>
+
+          <NavLink
+            to="/about"
+            className={({ isActive }) =>
+              isActive ? "nav-link active" : "nav-link"
+            }
+          >
+            About
+          </NavLink>
         </nav>
       </header>
 
