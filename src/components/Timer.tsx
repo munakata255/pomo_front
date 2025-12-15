@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useTimerContext } from "../contexts/TimerContext";
 
 export default function Timer() {
@@ -20,9 +21,24 @@ export default function Timer() {
     return `${m}:${s.toString().padStart(2, "0")}`;
   };
 
+  // ブラウザのタブタイトルに残り時間を表示
+  useEffect(() => {
+    if (isRunning) {
+      const phaseEmoji = phase === "work" ? "🛠" : phase === "break" ? "🍵" : "🌿";
+      document.title = `${formatTime(timeLeft)} ${phaseEmoji} - PomoFlow`;
+    } else {
+      document.title = "PomoFlow";
+    }
+
+    // クリーンアップ
+    return () => {
+      document.title = "PomoFlow";
+    };
+  }, [timeLeft, isRunning, phase]);
+
   return (
     <div style={{ marginTop: "40px" }}>
-      <h2 style={{ fontSize: "48px", marginBottom: "20px" }}>
+      <h2 style={{ fontSize: "100px", marginBottom: "20px" }}>
         {formatTime(timeLeft)}
       </h2>
       <div style={{ fontSize: "24px", marginBottom: "10px" }}>

@@ -27,13 +27,20 @@ export default function Home() {
     }
   };
 
+  const getUserDisplayName = () => {
+    if (!user) return "";
+    if ("displayName" in user && user.displayName) return user.displayName;
+    return user.email || "";
+  };
+
   return (
     <div className="home-container">
       {/* ログイン状態の表示 */}
       <div className="auth-card">
         {user ? (
           <div>
-            <p>✅ ログイン中: {user.email}</p>
+            <p>✅ {getUserDisplayName()}</p>
+            <p style={{ opacity: 0.8, fontSize: "11px", marginTop: "2px" }}>{user.email}</p>
             <button className="auth-btn" onClick={handleLogout}>
               ログアウト
             </button>
