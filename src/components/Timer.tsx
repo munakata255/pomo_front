@@ -4,6 +4,7 @@ import { useTimerContext } from "../contexts/TimerContext";
 export default function Timer() {
   const {
     timeLeft,
+    initialTime,
     isRunning,
     phase,
     cycle,
@@ -36,8 +37,50 @@ export default function Timer() {
     };
   }, [timeLeft, isRunning, phase]);
 
+  // 円形プログレス用の計算
+    // 円形プログレス用の計算
+  const progress = initialTime > 0 
+    ? Math.min(100, Math.max(0, ((initialTime - timeLeft) / (initialTime - 1)) * 100)) 
+    : 0;
+  const radius = 120;
+  const circumference = 2 * Math.PI * radius;
+  const strokeDashoffset = circumference - (progress / 100) * circumference;
+  const strokeColor = phase === "work" ? "#1976d2" : phase === "break" ? "#a2ccf7ff" : "#388e3c";
+
   return (
     <div style={{ marginTop: "40px" }}>
+      {/* 円形プログレスバー */}
+      <div style={{ position: "relative", width: "300px", height: "300px", margin: "0 auto 30px" }}>
+        <svg width="300" height="300" style={{ transform: "rotate(-90deg)" }}>
+          <circle cx="150" cy="150" r={radius} stroke="#e0e0e0" strokeWidth="12" fill="none" />
+          <circle
+            cx="150"
+            cy="150"
+            r={radius}
+            stroke={strokeColor}
+            strokeWidth="12"
+            fill="none"
+            strokeDasharray={circumference}
+            strokeDashoffset={strokeDashoffset}
+            strokeLinecap="round"
+            style={{ transition: "stroke-dashoffset 1s linear" }}
+          />
+        </svg>
+        <div
+          style={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            fontSize: "24px",
+            fontWeight: "bold",
+            color: "#333",
+          }}
+        >
+          {Math.round(progress)}%
+        </div>
+      </div>
+
       <h2 style={{ fontSize: "100px", marginBottom: "20px" }}>
         {formatTime(timeLeft)}
       </h2>

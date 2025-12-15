@@ -13,6 +13,7 @@ import type { TimerSet, Phase } from "../types";
 interface TimerContextType {
   // タイマーの状態
   timeLeft: number;
+  initialTime: number;
   isRunning: boolean;
   phase: Phase;
   cycle: number;
@@ -40,6 +41,7 @@ export function TimerProvider({ children }: { children: ReactNode }) {
   const [selectedTask, setSelectedTask] = useState<string>("");
   const [selectedTimerSet, setSelectedTimerSet] = useState<TimerSet | null>(null);
   const [timeLeft, setTimeLeft] = useState(0);
+  const [initialTime, setInitialTime] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
   const [phase, setPhase] = useState<Phase>("work");
   const [cycle, setCycle] = useState(1);
@@ -102,6 +104,7 @@ export function TimerProvider({ children }: { children: ReactNode }) {
       setPhase("break");
       const nextSec = (selectedTimerSet?.breakDuration ?? 5) * 60;
       setTimeLeft(nextSec);
+      setInitialTime(nextSec);
       timeLeftRef.current = nextSec;
       currentPhaseInitialTimeRef.current = nextSec;
       startedAtRef.current = new Date();
@@ -114,6 +117,7 @@ export function TimerProvider({ children }: { children: ReactNode }) {
         setPhase("longBreak");
         const nextSec = (selectedTimerSet?.longBreakDuration ?? 0.01) * 60;
         setTimeLeft(nextSec);
+        setInitialTime(nextSec);
         timeLeftRef.current = nextSec;
         currentPhaseInitialTimeRef.current = nextSec;
         startedAtRef.current = new Date();
@@ -126,6 +130,7 @@ export function TimerProvider({ children }: { children: ReactNode }) {
         setCycle(cycleRef.current);
         const nextSec = (selectedTimerSet?.workDuration ?? 25) * 60;
         setTimeLeft(nextSec);
+        setInitialTime(nextSec);
         timeLeftRef.current = nextSec;
         currentPhaseInitialTimeRef.current = nextSec;
         startedAtRef.current = new Date();
@@ -141,6 +146,7 @@ export function TimerProvider({ children }: { children: ReactNode }) {
         setPhase("work");
         const nextSec = (selectedTimerSet?.workDuration ?? 25) * 60;
         setTimeLeft(nextSec);
+        setInitialTime(nextSec);
         timeLeftRef.current = nextSec;
         currentPhaseInitialTimeRef.current = nextSec;
         startedAtRef.current = new Date();
@@ -189,6 +195,7 @@ export function TimerProvider({ children }: { children: ReactNode }) {
       // 初回スタート時は work フェーズの時間を設定
       const initialTime = selectedTimerSet.workDuration * 60;
       setTimeLeft(initialTime);
+      setInitialTime(initialTime);
       timeLeftRef.current = initialTime;
       currentPhaseInitialTimeRef.current = initialTime;
       phaseRef.current = "work";
@@ -234,10 +241,12 @@ export function TimerProvider({ children }: { children: ReactNode }) {
     if (selectedTimerSet) {
       const initialTime = selectedTimerSet.workDuration * 60;
       setTimeLeft(initialTime);
+      setInitialTime(initialTime);
       timeLeftRef.current = initialTime;
       currentPhaseInitialTimeRef.current = initialTime;
     } else {
       setTimeLeft(0);
+      setInitialTime(0);
       timeLeftRef.current = 0;
       currentPhaseInitialTimeRef.current = 0;
     }
@@ -291,6 +300,7 @@ export function TimerProvider({ children }: { children: ReactNode }) {
     if (timerSet) {
       const initialTime = timerSet.workDuration * 60;
       setTimeLeft(initialTime);
+      setInitialTime(initialTime);
       timeLeftRef.current = initialTime;
       currentPhaseInitialTimeRef.current = initialTime;
     }
@@ -319,6 +329,7 @@ export function TimerProvider({ children }: { children: ReactNode }) {
 
   const value: TimerContextType = {
     timeLeft,
+    initialTime,
     isRunning,
     phase,
     cycle,

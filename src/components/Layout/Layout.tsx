@@ -45,7 +45,7 @@ export default function Layout() {
             style={{
               fontSize: "18px",
               fontWeight: "bold",
-              color: phase === "work" ? "#d32f2f" : "#1976d2",
+              color: phase === "work" ? "#1976d2" : "#a2ccf7ff",
             }}
           >
             {getPhaseEmoji()} {formatTime(timeLeft)}
