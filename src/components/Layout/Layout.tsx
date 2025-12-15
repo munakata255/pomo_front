@@ -31,7 +31,7 @@ export default function Layout() {
           alignItems: "center",
         }}
       >
-        <h2>Pomodoro App</h2>
+        <h2>PomoFlow</h2>
 
         {/* タイマー状態表示 */}
         {isRunning && (
