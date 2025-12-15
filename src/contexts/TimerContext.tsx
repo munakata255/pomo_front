@@ -62,10 +62,29 @@ export function TimerProvider({ children }: { children: ReactNode }) {
   const startedAtRef = useRef<Date | null>(null);
   const currentPhaseInitialTimeRef = useRef(0);
 
+  // サウンドを再生する関数
+  const playSound = (soundFile: string) => {
+    try {
+      const audio = new Audio(`/sounds/${soundFile}`);
+      audio.play().catch((error) => {
+        console.error("音声再生エラー:", error);
+      });
+    } catch (error) {
+      console.error("音声ファイル読み込みエラー:", error);
+    }
+  };
+
   // タイマーが終了したときの処理
   const handleFinish = async () => {
     const currentPhase = phaseRef.current;
     if (!startedAtRef.current) return;
+
+    // フェーズに応じた音を再生
+    if (currentPhase === "work") {
+      playSound("finishWork.mp3");
+    } else if (currentPhase === "break" || currentPhase === "longBreak") {
+      playSound("finishBreak.mp3");
+    }
 
     // work フェーズのときだけ学習ログを保存
     if (currentPhase === "work") {
