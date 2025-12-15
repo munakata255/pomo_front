@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { useAuth } from "../../contexts/AuthContext";
 
 type Task = {
   _id: string;
@@ -9,26 +10,28 @@ type Task = {
 };
 
 export default function Settings() {
+  const { user } = useAuth();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [newTask, setNewTask] = useState("");
 
   // ▼ タスク一覧取得
   useEffect(() => {
     const fetchTasks = async () => {
+      if (!user?.uid) return;
       const res = await axios.get("http://localhost:5001/tasks", {
-        params: { userId: "testuser" },
+        params: { userId: user.uid },
       });
       setTasks(res.data);
     };
     fetchTasks();
-  }, []);
+  }, [user]);
 
   // ▼ タスク追加
   const addTask = async () => {
-    if (!newTask.trim()) return;
+    if (!newTask.trim() || !user?.uid) return;
 
     const res = await axios.post("http://localhost:5001/tasks", {
-      userId: "testuser",
+      userId: user.uid,
       name: newTask,
       color: "#FFA500",
       isActive: true,

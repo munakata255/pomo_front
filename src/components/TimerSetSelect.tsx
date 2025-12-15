@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { useAuth } from "../contexts/AuthContext";
 
 type TimerSet = {
   _id: string;
@@ -19,16 +20,18 @@ export default function TimerSetSelect({
   onSelectTimerSet,
 }: Props) {
   const [timerSets, setTimerSets] = useState<any[]>([]);
+  const { user } = useAuth();
 
   useEffect(() => {
     const fetch = async () => {
+      if (!user?.uid) return;
       const res = await axios.get("http://localhost:5001/timerSets", {
-        params: { userId: "testuser" },
+        params: { userId: user.uid },
       });
       setTimerSets(res.data);
     };
     fetch();
-  }, []);
+  }, [user]);
 
   return (
     <div style={{ margin: "20px 0" }}>

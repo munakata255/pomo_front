@@ -7,6 +7,7 @@ import {
 } from "react";
 import type { ReactNode } from "react";
 import axios from "axios";
+import { useAuth } from "./AuthContext";
 
 type TimerSet = {
   _id: string;
@@ -45,6 +46,7 @@ interface TimerContextType {
 const TimerContext = createContext<TimerContextType | undefined>(undefined);
 
 export function TimerProvider({ children }: { children: ReactNode }) {
+  const { user } = useAuth();
   const [selectedTask, setSelectedTask] = useState<string>("");
   const [selectedTimerSet, setSelectedTimerSet] = useState<TimerSet | null>(null);
   const [timeLeft, setTimeLeft] = useState(0);
@@ -68,9 +70,10 @@ export function TimerProvider({ children }: { children: ReactNode }) {
     // work フェーズのときだけ学習ログを保存
     if (currentPhase === "work") {
       const duration = currentPhaseInitialTimeRef.current - timeLeftRef.current;
+      if (!user?.uid) return;
       try {
         await axios.post("http://localhost:5001/studyLogs", {
-          userId: "testuser",
+          userId: user.uid,
           taskId: selectedTask,
           timerSetId: selectedTimerSet?._id || "",
           startedAt: startedAtRef.current,
@@ -241,13 +244,17 @@ export function TimerProvider({ children }: { children: ReactNode }) {
       alert("作業フェーズでのみ保存できます");
       return;
     }
+    if (!user?.uid) {
+      alert("ユーザーがログインしていません");
+      return;
+    }
 
     const finishedAt = new Date();
     const durationSeconds = currentPhaseInitialTimeRef.current - timeLeftRef.current;
 
     try {
       await axios.post("http://localhost:5001/studyLogs", {
-        userId: "testuser",
+        userId: user.uid,
         taskId: selectedTask,
         timerSetId: selectedTimerSet?._id,
         startedAt: startedAtRef.current,

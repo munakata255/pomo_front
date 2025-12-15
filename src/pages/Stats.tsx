@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import StatsGraph from "../components/StatsGraph";
+import { useAuth } from "../contexts/AuthContext";
 
 type StatsData = {
   totalSeconds: number;
@@ -18,6 +19,7 @@ type LogData = {
 };
 
 export default function Stats() {
+  const { user } = useAuth();
   const [stats, setStats] = useState<StatsData | null>(null);
   const [logs, setLogs] = useState<LogData[]>([]);
   const [mode, setMode] = useState<"daily" | "weekly" | "monthly">("daily");
@@ -34,9 +36,10 @@ export default function Stats() {
 
   useEffect(() => {
     const fetchTasks = async () => {
+      if (!user?.uid) return;
       try {
         const res = await axios.get("http://localhost:5001/tasks", {
-          params: { userId: "testuser" },
+          params: { userId: user.uid },
         });
         setTasks(res.data);
       } catch (error) {
@@ -45,13 +48,14 @@ export default function Stats() {
     };
 
     fetchTasks();
-  }, []);
+  }, [user]);
 
   useEffect(() => {
     const fetchStats = async () => {
+      if (!user?.uid) return;
       try {
         const res = await axios.get("http://localhost:5001/stats", {
-          params: { userId: "testuser" }, // ← 後で Firebase UID に置き換える
+          params: { userId: user.uid },
         });
 
         setStats(res.data);
@@ -62,13 +66,14 @@ export default function Stats() {
     };
 
     fetchStats();
-  }, []);
+  }, [user]);
   // StudyLogs の取得
   useEffect(() => {
     const fetchLogs = async () => {
+      if (!user?.uid) return;
       try {
         const res = await axios.get("http://localhost:5001/studyLogs", {
-          params: { userId: "testuser" },
+          params: { userId: user.uid },
         });
         setLogs(res.data);
       } catch (error) {
@@ -76,13 +81,14 @@ export default function Stats() {
       }
     };
     fetchLogs();
-  }, []);
+  }, [user]);
 
   useEffect(() => {
     const fetchTodayStats = async () => {
+      if (!user?.uid) return;
       try {
         const res = await axios.get("http://localhost:5001/stats/today", {
-          params: { userId: "testuser" },
+          params: { userId: user.uid },
         });
         setTodayStats(res.data);
       } catch (error) {
@@ -91,13 +97,13 @@ export default function Stats() {
     };
 
     fetchTodayStats();
-  }, []);
+  }, [user]);
   const fetchStatsByDate = async (date: string) => {
-    if (!date) return;
+    if (!date || !user?.uid) return;
 
     try {
       const res = await axios.get("http://localhost:5001/stats/byDate", {
-        params: { userId: "testuser", date },
+        params: { userId: user.uid, date },
       });
 
       // taskName を tasks から補完する

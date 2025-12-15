@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { useAuth } from "../contexts/AuthContext";
 
 type Task = {
   _id: string;
@@ -13,13 +14,15 @@ type Props = {
 
 export default function TaskSelect({ selectedTask, onSelectTask }: Props) {
   const [tasks, setTasks] = useState<Task[]>([]);
+  const { user } = useAuth();
 
   // ▼ タスク一覧を取得
   useEffect(() => {
     const fetchTasks = async () => {
+      if (!user?.uid) return;
       try {
         const res = await axios.get("http://localhost:5001/tasks", {
-          params: { userId: "testuser" }, // ← 後で Firebase UID に変更
+          params: { userId: user.uid },
         });
         setTasks(res.data);
       } catch (e) {
@@ -28,7 +31,7 @@ export default function TaskSelect({ selectedTask, onSelectTask }: Props) {
     };
 
     fetchTasks();
-  }, []);
+  }, [user]);
 
   return (
     <div style={{ margin: "20px 0" }}>
