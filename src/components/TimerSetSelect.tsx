@@ -1,14 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useAuth } from "../contexts/AuthContext";
-
-type TimerSet = {
-  _id: string;
-  name: string;
-  workDuration: number;
-  breakDuration: number;
-  cycles: number;
-};
+import type { TimerSet } from "../types";
 
 type Props = {
   selectedTimerSetId: string;
@@ -19,7 +12,7 @@ export default function TimerSetSelect({
   selectedTimerSetId,
   onSelectTimerSet,
 }: Props) {
-  const [timerSets, setTimerSets] = useState<any[]>([]);
+  const [timerSets, setTimerSets] = useState<TimerSet[]>([]);
   const { user } = useAuth();
 
   useEffect(() => {

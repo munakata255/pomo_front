@@ -2,37 +2,17 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import StatsGraph from "../components/StatsGraph";
 import { useAuth } from "../contexts/AuthContext";
-
-type StatsData = {
-  totalSeconds: number;
-  logCount: number;
-  taskSummary: {
-    taskId: string;
-    taskName: string;
-    seconds: number;
-  }[];
-};
-
-type LogData = {
-  startedAt: string;
-  durationSeconds: number;
-};
+import type { StatsData, StudyLog, Task, TaskSummary } from "../types";
 
 export default function Stats() {
   const { user } = useAuth();
   const [stats, setStats] = useState<StatsData | null>(null);
-  const [logs, setLogs] = useState<LogData[]>([]);
+  const [logs, setLogs] = useState<StudyLog[]>([]);
   const [mode, setMode] = useState<"daily" | "weekly" | "monthly">("daily");
-  const [tasks, setTasks] = useState<{ _id: string; name: string }[]>([]);
-  const [todayStats, setTodayStats] = useState<{
-    totalSeconds: number;
-    taskSummary: { taskId: string; taskName: string; seconds: number }[];
-  } | null>(null);
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [todayStats, setTodayStats] = useState<StatsData | null>(null);
   const [selectedDate, setSelectedDate] = useState("");
-  const [selectedDateStats, setSelectedDateStats] = useState<{
-    totalSeconds: number;
-    taskSummary: { taskId: string; taskName: string; seconds: number }[];
-  } | null>(null);
+  const [selectedDateStats, setSelectedDateStats] = useState<StatsData | null>(null);
 
   useEffect(() => {
     const fetchTasks = async () => {
@@ -107,7 +87,7 @@ export default function Stats() {
       });
 
       // taskName を tasks から補完する
-      const withNames = res.data.taskSummary.map((t: any) => ({
+      const withNames: TaskSummary[] = res.data.taskSummary.map((t: TaskSummary) => ({
         ...t,
         taskName:
           tasks.find((task) => task._id === t.taskId)?.name || "不明なタスク",
@@ -115,6 +95,7 @@ export default function Stats() {
 
       setSelectedDateStats({
         totalSeconds: res.data.totalSeconds,
+        logCount: res.data.logCount || 0,
         taskSummary: withNames,
       });
     } catch (error) {
@@ -122,7 +103,7 @@ export default function Stats() {
     }
   };
   // 日別の学習時間を集計
-  const dailyDataObj = logs.reduce((acc: any, log) => {
+  const dailyDataObj = logs.reduce((acc: Record<string, number>, log) => {
     const day = log.startedAt.slice(0, 10); // "YYYY-MM-DD" に切り出し
 
     if (!acc[day]) acc[day] = 0;
@@ -131,7 +112,7 @@ export default function Stats() {
     return acc;
   }, {});
 
-  const weeklyDataObj = logs.reduce((acc: any, log) => {
+  const weeklyDataObj = logs.reduce((acc: Record<string, number>, log) => {
     const date = new Date(log.startedAt);
     const year = date.getFullYear();
 
@@ -152,7 +133,7 @@ export default function Stats() {
     return acc;
   }, {});
 
-  const monthlyDataObj = logs.reduce((acc: any, log) => {
+  const monthlyDataObj = logs.reduce((acc: Record<string, number>, log) => {
     const month = log.startedAt.slice(0, 7); // YYYY-MM
     if (!acc[month]) acc[month] = 0;
     acc[month] += log.durationSeconds;

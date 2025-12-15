@@ -8,17 +8,7 @@ import {
 import type { ReactNode } from "react";
 import axios from "axios";
 import { useAuth } from "./AuthContext";
-
-type TimerSet = {
-  _id: string;
-  name: string;
-  workDuration: number;
-  breakDuration: number;
-  longBreakDuration?: number;
-  cycles: number;
-};
-
-type Phase = "work" | "break" | "longBreak";
+import type { TimerSet, Phase } from "../types";
 
 interface TimerContextType {
   // タイマーの状態

@@ -24,11 +24,11 @@ export default function Login() {
     try {
       setLoading(true);
       setError("");
-      const result = await signInWithPopup(auth, provider);
-      console.log("ログイン成功:", result.user);
+      await signInWithPopup(auth, provider);
       navigate("/"); // ログイン成功後にホームへ遷移
-    } catch (err: any) {
-      setError(err.message || "ログインに失敗しました");
+    } catch (err) {
+      const error = err as Error;
+      setError(error.message || "ログインに失敗しました");
       console.error(err);
     } finally {
       setLoading(false);
@@ -63,7 +63,7 @@ export default function Login() {
       // それ以外はFirebase認証を試みる
       await signInWithEmailAndPassword(auth, email, password);
       navigate("/");
-    } catch (err: any) {
+    } catch (err) {
       setError("メールアドレスまたはパスワードが間違っています");
       console.error(err);
     } finally {

@@ -1,11 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useAuth } from "../contexts/AuthContext";
-
-type Task = {
-  _id: string;
-  name: string;
-};
+import type { Task } from "../types";
 
 type Props = {
   selectedTask: string;
