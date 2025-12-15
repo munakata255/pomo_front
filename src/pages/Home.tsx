@@ -29,8 +29,6 @@ export default function Home() {
 
   return (
     <div className="home-container">
-      <h1>Pomodoro Timer</h1>
-
       {/* ログイン状態の表示 */}
       <div className="auth-card">
         {user ? (
@@ -50,20 +48,26 @@ export default function Home() {
         )}
       </div>
 
-      {/* タスク選択 */}
-      <div className="selection-section">
-        <TaskSelect
-          selectedTask={selectedTask}
-          onSelectTask={setSelectedTask}
-        />
+      {/* タスク選択とタイマーセット選択を横一列に */}
+      <div className="selection-row">
+        <div className="selection-section">
+          <TaskSelect
+            selectedTask={selectedTask}
+            onSelectTask={setSelectedTask}
+          />
+        </div>
+
+        <div className="selection-section">
+          <TimerSetSelect
+            selectedTimerSetId={selectedTimerSet?._id || ""}
+            onSelectTimerSet={setSelectedTimerSet}
+          />
+        </div>
       </div>
 
-      {/* タイマーセット選択 */}
-      <div className="selection-section">
-        <TimerSetSelect
-          selectedTimerSetId={selectedTimerSet?._id || ""}
-          onSelectTimerSet={setSelectedTimerSet}
-        />
+      {/* タイマー表示 */}
+      <div className="timer-wrapper">
+        <Timer />
       </div>
 
       {/* 選択情報表示 */}
@@ -73,11 +77,6 @@ export default function Home() {
           <p>作業: {selectedTimerSet.workDuration}分 | 休憩: {selectedTimerSet.breakDuration}分 | {selectedTimerSet.cycles}サイクル</p>
         </div>
       )}
-
-      {/* タイマー表示 */}
-      <div className="timer-wrapper">
-        <Timer />
-      </div>
     </div>
   );
 }

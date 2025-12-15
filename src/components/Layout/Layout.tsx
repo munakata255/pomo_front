@@ -24,14 +24,20 @@ export default function Layout() {
       {/* ヘッダー */}
       <header
         style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
           padding: "10px 20px",
           backgroundColor: "#f5f5f5",
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
+          boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
+          zIndex: 100,
         }}
       >
-        <h2>PomoFlow</h2>
+        <h2 style={{ margin: 0, fontSize: "18px" }}>PomoFlow</h2>
 
         {/* タイマー状態表示 */}
         {isRunning && (
@@ -88,7 +94,7 @@ export default function Layout() {
       </header>
 
       {/* 各ページ */}
-      <main style={{ padding: "20px" }}>
+      <main style={{ padding: "20px", paddingTop: "70px" }}>
         <Outlet />
       </main>
     </div>
