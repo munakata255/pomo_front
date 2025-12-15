@@ -8,13 +8,29 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
+    // 開発用ユーザーのチェック
+    const devUser = localStorage.getItem("devUser");
+    if (devUser) {
+      setUser(JSON.parse(devUser));
+      return;
+    }
+
+    // Firebase認証のユーザー監視
     const unsubscribe = onAuthStateChanged(auth, (u) => {
-      setUser(u);
+      if (u) {
+        setUser(u);
+      } else {
+        // ログアウト時は開発用ユーザーもクリア
+        const devUser = localStorage.getItem("devUser");
+        if (!devUser) {
+          setUser(null);
+        }
+      }
     });
     return () => unsubscribe();
   }, []);
 
-  return <AuthContext.Provider value={{ user }}>{children}</AuthContext.Provider>;
+  return <AuthContext.Provider value={{ user, setUser }}>{children}</AuthContext.Provider>;
 };
 
 export const useAuth = () => useContext(AuthContext);

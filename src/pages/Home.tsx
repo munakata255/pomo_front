@@ -15,8 +15,11 @@ export default function Home() {
 
   const handleLogout = async () => {
     try {
+      // 開発用ユーザー情報をクリア
+      localStorage.removeItem("devUser");
       await signOut(auth);
-      alert("ログアウトしました");
+      // ページをリロードして状態をクリア
+      window.location.href = "/";
     } catch (err) {
       console.error("ログアウトエラー:", err);
       alert("ログアウトに失敗しました");
