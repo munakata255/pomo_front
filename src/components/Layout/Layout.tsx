@@ -1,9 +1,16 @@
-import { NavLink, Outlet } from "react-router-dom";
+import { NavLink, Outlet, useNavigate } from "react-router-dom";
+import { useState } from "react";
 import { useTimerContext } from "../../contexts/TimerContext";
+import { useAuth } from "../../contexts/AuthContext";
+import { signOut } from "firebase/auth";
+import { auth } from "../../lib/firebase";
 import "./nav.css";
 
 export default function Layout() {
+  const navigate = useNavigate();
+  const { user } = useAuth();
   const { timeLeft, isRunning, phase } = useTimerContext();
+  const [showAuthModal, setShowAuthModal] = useState(false);
 
   // 秒 → mm:ss
   const formatTime = (sec: number) => {
@@ -17,6 +24,24 @@ export default function Layout() {
     if (phase === "break") return "🍵";
     if (phase === "longBreak") return "🌿";
     return "";
+  };
+
+  const getUserDisplayName = () => {
+    if (!user) return "";
+    if ("displayName" in user && user.displayName) return user.displayName;
+    return user.email || "";
+  };
+
+  const handleLogout = async () => {
+    try {
+      localStorage.removeItem("devUser");
+      await signOut(auth);
+      setShowAuthModal(false);
+      window.location.href = "/";
+    } catch (err) {
+      console.error("ログアウトエラー:", err);
+      alert("ログアウトに失敗しました");
+    }
   };
 
   return (
@@ -53,7 +78,7 @@ export default function Layout() {
         )}
 
         {/* ナビゲーション */}
-        <nav style={{ display: "flex", gap: "20px" }}>
+        <nav style={{ display: "flex", gap: "20px", alignItems: "center" }}>
           <NavLink
             to="/"
             end
@@ -90,6 +115,22 @@ export default function Layout() {
           >
             About
           </NavLink>
+
+          {/* ユーザー情報ボタン（ヘッダー右端） */}
+          <button
+            onClick={() => setShowAuthModal(true)}
+            style={{
+              marginLeft: "16px",
+              padding: "8px 12px",
+              borderRadius: "8px",
+              border: "1px solid #ccc",
+              background: "white",
+              cursor: "pointer",
+              fontWeight: 600,
+            }}
+          >
+            {user ? "👤" : "🔓"}
+          </button>
         </nav>
       </header>
 
@@ -97,6 +138,97 @@ export default function Layout() {
       <main style={{ padding: "20px", paddingTop: "70px" }}>
         <Outlet />
       </main>
+
+      {/* ログイン情報モーダル */}
+      {showAuthModal && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            backgroundColor: "rgba(0,0,0,0.35)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 200,
+          }}
+          onClick={() => setShowAuthModal(false)}
+        >
+          <div
+            style={{
+              background: "white",
+              padding: "20px",
+              borderRadius: "12px",
+              minWidth: "260px",
+              boxShadow: "0 8px 24px rgba(0,0,0,0.2)",
+              position: "relative",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setShowAuthModal(false)}
+              style={{
+                position: "absolute",
+                top: "8px",
+                right: "8px",
+                border: "none",
+                background: "transparent",
+                fontSize: "18px",
+                cursor: "pointer",
+              }}
+            >
+              ✕
+            </button>
+
+            {user ? (
+              <div>
+                <h3 style={{ marginTop: 0 }}>ユーザー情報</h3>
+                <p style={{ margin: "6px 0" }}>✅ {getUserDisplayName()}</p>
+                <p style={{ margin: "4px 0", opacity: 0.7, fontSize: "12px" }}>{user.email}</p>
+                <button
+                  onClick={handleLogout}
+                  style={{
+                    marginTop: "12px",
+                    width: "100%",
+                    padding: "10px",
+                    borderRadius: "8px",
+                    border: "none",
+                    background: "#d32f2f",
+                    color: "white",
+                    fontWeight: 700,
+                    cursor: "pointer",
+                  }}
+                >
+                  ログアウト
+                </button>
+              </div>
+            ) : (
+              <div>
+                <h3 style={{ marginTop: 0 }}>ログイン</h3>
+                <p style={{ margin: "6px 0" }}>❌ ログインしていません</p>
+                <button
+                  onClick={() => {
+                    setShowAuthModal(false);
+                    navigate("/login");
+                  }}
+                  style={{
+                    marginTop: "12px",
+                    width: "100%",
+                    padding: "10px",
+                    borderRadius: "8px",
+                    border: "none",
+                    background: "#1976d2",
+                    color: "white",
+                    fontWeight: 700,
+                    cursor: "pointer",
+                  }}
+                >
+                  ログインページへ
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
