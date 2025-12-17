@@ -32,6 +32,18 @@ export default function Layout() {
     return user.email || "";
   };
 
+  const handleProtectedNav = (
+    e: React.MouseEvent<HTMLAnchorElement, MouseEvent>,
+    path: string
+  ) => {
+    if (!user) {
+      e.preventDefault();
+      alert("現在開発中のため、このページはログイン後にご利用ください。");
+      return;
+    }
+    navigate(path);
+  };
+
   const handleLogout = async () => {
     try {
       localStorage.removeItem("devUser");
@@ -94,6 +106,7 @@ export default function Layout() {
             className={({ isActive }) =>
               isActive ? "nav-link active" : "nav-link"
             }
+            onClick={(e) => handleProtectedNav(e, "/stats")}
           >
             Stats
           </NavLink>
@@ -103,6 +116,7 @@ export default function Layout() {
             className={({ isActive }) =>
               isActive ? "nav-link active" : "nav-link"
             }
+            onClick={(e) => handleProtectedNav(e, "/settings")}
           >
             Settings
           </NavLink>

@@ -15,16 +15,47 @@ export default function TimerSetSelect({
   const [timerSets, setTimerSets] = useState<TimerSet[]>([]);
   const { user } = useAuth();
 
+  const DEFAULT_TIMER_SETS: TimerSet[] = [
+    {
+      _id: "default-timerset",
+      name: "ポモドーロ 25/5 x4",
+      workDuration: 25,
+      breakDuration: 5,
+      longBreakDuration: 30,
+      cycles: 4,
+      userId: "guest",
+    },
+  ];
+
   useEffect(() => {
     const fetch = async () => {
-      if (!user?.uid) return;
+      // 未ログイン: ローカルデフォルト
+      if (!user?.uid) {
+        setTimerSets(DEFAULT_TIMER_SETS);
+        if (!selectedTimerSetId) {
+          onSelectTimerSet(DEFAULT_TIMER_SETS[0]);
+        }
+        return;
+      }
+
+      // ログイン時: サーバーから取得
       const res = await axios.get("http://localhost:5001/timerSets", {
         params: { userId: user.uid },
       });
       setTimerSets(res.data);
+
+      if (res.data.length > 0) {
+        if (!selectedTimerSetId || selectedTimerSetId === DEFAULT_TIMER_SETS[0]._id) {
+          onSelectTimerSet(res.data[0]);
+        }
+      } else {
+        if (selectedTimerSetId === DEFAULT_TIMER_SETS[0]._id) {
+          onSelectTimerSet(null);
+        }
+      }
     };
-    fetch();
-  }, [user]);
+    fetch().catch((e) => console.error(e));
+  }, [user, selectedTimerSetId, onSelectTimerSet]);
 
   return (
     <div style={{ margin: "20px 0" }}>

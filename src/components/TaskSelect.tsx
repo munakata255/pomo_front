@@ -12,22 +12,51 @@ export default function TaskSelect({ selectedTask, onSelectTask }: Props) {
   const [tasks, setTasks] = useState<Task[]>([]);
   const { user } = useAuth();
 
+  const DEFAULT_TASKS: Task[] = [
+    {
+      _id: "default-task",
+      name: "ポモドーロタイマー",
+      userId: "guest",
+    },
+  ];
+
   // ▼ タスク一覧を取得
   useEffect(() => {
     const fetchTasks = async () => {
-      if (!user?.uid) return;
+      // 未ログイン: ローカルデフォルトを使用（バックエンドへ送らない）
+      if (!user?.uid) {
+        setTasks(DEFAULT_TASKS);
+        if (!selectedTask) {
+          onSelectTask(DEFAULT_TASKS[0]._id);
+        }
+        return;
+      }
+
+      // ログイン時: バックエンドから取得
       try {
         const res = await axios.get("http://localhost:5001/tasks", {
           params: { userId: user.uid },
         });
         setTasks(res.data);
+
+        // デフォルト選択を上書き（初回のみ）
+        if (res.data.length > 0) {
+          if (!selectedTask || selectedTask === DEFAULT_TASKS[0]._id) {
+            onSelectTask(res.data[0]._id);
+          }
+        } else {
+          // サーバーにタスクがない場合は選択解除
+          if (selectedTask === DEFAULT_TASKS[0]._id) {
+            onSelectTask("");
+          }
+        }
       } catch (e) {
         console.error(e);
       }
     };
 
     fetchTasks();
-  }, [user]);
+  }, [user, selectedTask, onSelectTask]);
 
   return (
     <div style={{ margin: "20px 0" }}>
