@@ -174,123 +174,364 @@ export default function Stats() {
   const formatMinutes = (sec: number) => (sec / 60).toFixed(1); // 小数1位まで分表示
 
   return (
-    <div style={{ maxWidth: "480px", margin: "0 auto", textAlign: "center" }}>
-      <h1>学習統計</h1>
-      {!stats && <p>読み込み中...</p>}
+    <div
+      style={{
+        minHeight: "100vh",
+        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+        padding: "20px",
+      }}
+    >
+      <div style={{ maxWidth: "600px", margin: "0 auto" }}>
+        {/* ページタイトル */}
+        <h1
+          style={{
+            fontSize: "32px",
+            fontWeight: "700",
+            color: "white",
+            marginBottom: "24px",
+            textAlign: "center",
+          }}
+        >
+          📊 学習統計
+        </h1>
 
-      {stats && (
-        <>
-          <p>総学習時間：{formatMinutes(stats.totalSeconds)} 分</p>
-          <p>記録回数：{stats.logCount} 回</p>
+        {!stats && (
+          <p style={{ color: "white", textAlign: "center" }}>読み込み中...</p>
+        )}
 
-          {todayStats && (
-            <div style={{ marginTop: "20px" }}>
-              <div style={{ marginTop: "20px" }}>
-                <input
-                  type="date"
-                  value={selectedDate}
-                  onChange={(e) => setSelectedDate(e.target.value)}
-                />
+        {stats && (
+          <>
+            {/* 総計カード */}
+            <div
+              style={{
+                background: "white",
+                borderRadius: "12px",
+                padding: "24px",
+                marginBottom: "20px",
+                boxShadow: "0 8px 24px rgba(0, 0, 0, 0.15)",
+              }}
+            >
+              <h2 style={{ fontSize: "14px", color: "#999", margin: "0 0 16px 0" }}>
+                総学習時間
+              </h2>
+              <div
+                style={{
+                  fontSize: "48px",
+                  fontWeight: "700",
+                  color: "#667eea",
+                  marginBottom: "12px",
+                }}
+              >
+                {formatMinutes(stats.totalSeconds)}
+                <span style={{ fontSize: "20px", color: "#999", marginLeft: "8px" }}>
+                  分
+                </span>
+              </div>
+              <p style={{ margin: "8px 0", color: "#666", fontSize: "14px" }}>
+                📝 記録回数：{stats.logCount} 回
+              </p>
+            </div>
 
-                <button
-                  onClick={() => fetchStatsByDate(selectedDate)}
-                  disabled={!selectedDate}
-                  style={{ marginLeft: "6px" }}
-                >
-                  この日を見る
-                </button>
-
-                <button
-                  onClick={() => {
-                    setSelectedDateStats(null);
-                    setSelectedDate("");
+            {todayStats && (
+              <div>
+                {/* 日付選択カード */}
+                <div
+                  style={{
+                    background: "white",
+                    borderRadius: "12px",
+                    padding: "20px",
+                    marginBottom: "20px",
+                    boxShadow: "0 8px 24px rgba(0, 0, 0, 0.15)",
                   }}
-                  disabled={selectedDate === "" && selectedDateStats === null}
-                  style={{ marginLeft: "6px" }}
                 >
-                  今日に戻る
-                </button>
-                {/* ▼ 今日の学習（選択日の結果がまだない場合だけ表示） */}
-                {selectedDateStats === null && todayStats && (
-                  <div style={{ marginTop: "20px" }}>
-                    <h2>📅 今日の学習</h2>
-                    <p>合計：{(todayStats.totalSeconds / 60).toFixed(1)} 分</p>
+                  <h3
+                    style={{
+                      fontSize: "14px",
+                      color: "#999",
+                      margin: "0 0 16px 0",
+                    }}
+                  >
+                    📅 日付を選択
+                  </h3>
+                  <div style={{ display: "flex", gap: "8px", marginBottom: "12px" }}>
+                    <input
+                      type="date"
+                      value={selectedDate}
+                      onChange={(e) => setSelectedDate(e.target.value)}
+                      style={{
+                        flex: 1,
+                        padding: "10px 12px",
+                        border: "2px solid #e0e0e0",
+                        borderRadius: "6px",
+                        fontSize: "14px",
+                      }}
+                    />
+                  </div>
+                  <div style={{ display: "flex", gap: "8px" }}>
+                    <button
+                      onClick={() => fetchStatsByDate(selectedDate)}
+                      disabled={!selectedDate}
+                      style={{
+                        flex: 1,
+                        padding: "10px 12px",
+                        borderRadius: "6px",
+                        border: "none",
+                        background: selectedDate ? "#667eea" : "#ccc",
+                        color: "white",
+                        fontWeight: "600",
+                        cursor: selectedDate ? "pointer" : "not-allowed",
+                        fontSize: "13px",
+                      }}
+                    >
+                      表示
+                    </button>
 
-                    {/* タスク別（ある時だけ） */}
+                    <button
+                      onClick={() => {
+                        setSelectedDateStats(null);
+                        setSelectedDate("");
+                      }}
+                      disabled={selectedDate === "" && selectedDateStats === null}
+                      style={{
+                        flex: 1,
+                        padding: "10px 12px",
+                        borderRadius: "6px",
+                        border: "none",
+                        background:
+                          selectedDate !== "" || selectedDateStats !== null
+                            ? "#764ba2"
+                            : "#ccc",
+                        color: "white",
+                        fontWeight: "600",
+                        cursor:
+                          selectedDate !== "" || selectedDateStats !== null
+                            ? "pointer"
+                            : "not-allowed",
+                        fontSize: "13px",
+                      }}
+                    >
+                      今日に戻す
+                    </button>
+                  </div>
+                </div>
+
+                {/* 今日の学習 */}
+                {selectedDateStats === null && todayStats && (
+                  <div
+                    style={{
+                      background: "white",
+                      borderRadius: "12px",
+                      padding: "20px",
+                      marginBottom: "20px",
+                      boxShadow: "0 8px 24px rgba(0, 0, 0, 0.15)",
+                    }}
+                  >
+                    <h3 style={{ fontSize: "16px", fontWeight: "700", margin: "0 0 12px 0" }}>
+                      📅 今日の学習
+                    </h3>
+                    <p
+                      style={{
+                        fontSize: "28px",
+                        fontWeight: "700",
+                        color: "#667eea",
+                        margin: "8px 0",
+                      }}
+                    >
+                      {(todayStats.totalSeconds / 60).toFixed(1)}{" "}
+                      <span style={{ fontSize: "14px", color: "#999" }}>分</span>
+                    </p>
+
                     {todayStats.taskSummary?.length > 0 && (
-                      <>
-                        <h3 style={{ marginTop: "10px" }}>タスク別</h3>
+                      <div style={{ marginTop: "16px", textAlign: "left" }}>
+                        <p
+                          style={{
+                            fontSize: "12px",
+                            color: "#999",
+                            marginBottom: "8px",
+                          }}
+                        >
+                          タスク別
+                        </p>
                         {todayStats.taskSummary.map((t) => (
-                          <p key={t.taskId}>
-                            ・{t.taskName}：{(t.seconds / 60).toFixed(1)} 分
+                          <p
+                            key={t.taskId}
+                            style={{
+                              margin: "6px 0",
+                              color: "#333",
+                              fontSize: "13px",
+                            }}
+                          >
+                            • {t.taskName}：{(t.seconds / 60).toFixed(1)} 分
                           </p>
                         ))}
-                      </>
+                      </div>
                     )}
                   </div>
                 )}
 
-                {/* ▼ 選択日の学習（APIを押してデータが来た時だけ表示） */}
+                {/* 選択日の学習 */}
                 {selectedDateStats !== null && (
-                  <div style={{ marginTop: "20px" }}>
-                    <h2>📅 {selectedDate} の学習</h2>
-                    <p>
-                      合計：{(selectedDateStats.totalSeconds / 60).toFixed(1)}{" "}
-                      分
+                  <div
+                    style={{
+                      background: "white",
+                      borderRadius: "12px",
+                      padding: "20px",
+                      marginBottom: "20px",
+                      boxShadow: "0 8px 24px rgba(0, 0, 0, 0.15)",
+                    }}
+                  >
+                    <h3 style={{ fontSize: "16px", fontWeight: "700", margin: "0 0 12px 0" }}>
+                      📅 {selectedDate} の学習
+                    </h3>
+                    <p
+                      style={{
+                        fontSize: "28px",
+                        fontWeight: "700",
+                        color: "#667eea",
+                        margin: "8px 0",
+                      }}
+                    >
+                      {(selectedDateStats.totalSeconds / 60).toFixed(1)}{" "}
+                      <span style={{ fontSize: "14px", color: "#999" }}>分</span>
                     </p>
                     {selectedDateStats.taskSummary.length > 0 && (
-                      <>
-                        <h3 style={{ marginTop: "10px" }}>タスク別</h3>
+                      <div style={{ marginTop: "16px", textAlign: "left" }}>
+                        <p
+                          style={{
+                            fontSize: "12px",
+                            color: "#999",
+                            marginBottom: "8px",
+                          }}
+                        >
+                          タスク別
+                        </p>
                         {selectedDateStats.taskSummary.map((t) => (
-                          <p key={t.taskId}>
-                            ・{t.taskName}：{(t.seconds / 60).toFixed(1)} 分
+                          <p
+                            key={t.taskId}
+                            style={{
+                              margin: "6px 0",
+                              color: "#333",
+                              fontSize: "13px",
+                            }}
+                          >
+                            • {t.taskName}：{(t.seconds / 60).toFixed(1)} 分
                           </p>
                         ))}
-                      </>
+                      </div>
                     )}
                   </div>
                 )}
               </div>
-            </div>
-          )}
-          {/* ▼ タスク別統計 */}
-          {stats.taskSummary && stats.taskSummary.length > 0 && (
-            <div style={{ marginTop: "3px" }}>
-              <h2 style={{ marginBottom: 0 }}>タスク別の学習時間</h2>
+            )}
 
-              {stats?.taskSummary && stats.taskSummary.length > 0 && (
-                <div style={{ marginTop: "3px", textAlign: "left" }}>
+            {/* タスク別統計 */}
+            {stats.taskSummary && stats.taskSummary.length > 0 && (
+              <div
+                style={{
+                  background: "white",
+                  borderRadius: "12px",
+                  padding: "20px",
+                  marginBottom: "20px",
+                  boxShadow: "0 8px 24px rgba(0, 0, 0, 0.15)",
+                }}
+              >
+                <h3 style={{ fontSize: "16px", fontWeight: "700", margin: "0 0 12px 0" }}>
+                  📈 タスク別の学習時間
+                </h3>
+                <div style={{ textAlign: "left" }}>
                   {stats.taskSummary.map((t) => (
-                    <p key={t.taskId} style={{ margin: "4px 0" }}>
-                      ・
-                      {tasks.find((task) => task._id === t.taskId)?.name ||
-                        "不明なタスク"}
-                      ：{(t.seconds / 60).toFixed(1)} 分
-                    </p>
+                    <div
+                      key={t.taskId}
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        padding: "8px 0",
+                        borderBottom: "1px solid #f0f0f0",
+                        fontSize: "13px",
+                      }}
+                    >
+                      <span>
+                        {tasks.find((task) => task._id === t.taskId)?.name ||
+                          "不明なタスク"}
+                      </span>
+                      <span style={{ fontWeight: "600", color: "#667eea" }}>
+                        {(t.seconds / 60).toFixed(1)} 分
+                      </span>
+                    </div>
                   ))}
                 </div>
-              )}
+              </div>
+            )}
+
+            {/* グラフセクション */}
+            <div
+              style={{
+                background: "white",
+                borderRadius: "12px",
+                padding: "20px",
+                marginBottom: "20px",
+                boxShadow: "0 8px 24px rgba(0, 0, 0, 0.15)",
+              }}
+            >
+              <h3 style={{ fontSize: "16px", fontWeight: "700", margin: "0 0 16px 0" }}>
+                📊 学習時間推移
+              </h3>
+              <div style={{ display: "flex", gap: "8px", marginBottom: "16px" }}>
+                <button
+                  onClick={() => setMode("daily")}
+                  style={{
+                    flex: 1,
+                    padding: "8px 12px",
+                    borderRadius: "6px",
+                    border: "none",
+                    background: mode === "daily" ? "#667eea" : "#f0f0f0",
+                    color: mode === "daily" ? "white" : "#666",
+                    fontWeight: "600",
+                    fontSize: "12px",
+                    cursor: "pointer",
+                  }}
+                >
+                  日別
+                </button>
+                <button
+                  onClick={() => setMode("weekly")}
+                  style={{
+                    flex: 1,
+                    padding: "8px 12px",
+                    borderRadius: "6px",
+                    border: "none",
+                    background: mode === "weekly" ? "#667eea" : "#f0f0f0",
+                    color: mode === "weekly" ? "white" : "#666",
+                    fontWeight: "600",
+                    fontSize: "12px",
+                    cursor: "pointer",
+                  }}
+                >
+                  週別
+                </button>
+                <button
+                  onClick={() => setMode("monthly")}
+                  style={{
+                    flex: 1,
+                    padding: "8px 12px",
+                    borderRadius: "6px",
+                    border: "none",
+                    background: mode === "monthly" ? "#667eea" : "#f0f0f0",
+                    color: mode === "monthly" ? "white" : "#666",
+                    fontWeight: "600",
+                    fontSize: "12px",
+                    cursor: "pointer",
+                  }}
+                >
+                  月別
+                </button>
+              </div>
+              <StatsGraph data={chartData} />
             </div>
-          )}
-        </>
-      )}
-      <h2>日別学習時間</h2>
-      <div style={{ marginBottom: "20px" }}>
-        <button onClick={() => setMode("daily")}>日別</button>
-        <button
-          onClick={() => setMode("weekly")}
-          style={{ marginLeft: "10px" }}
-        >
-          週別
-        </button>
-        <button
-          onClick={() => setMode("monthly")}
-          style={{ marginLeft: "10px" }}
-        >
-          月別
-        </button>
+          </>
+        )}
       </div>
-      <StatsGraph data={chartData} />
     </div>
   );
 }
