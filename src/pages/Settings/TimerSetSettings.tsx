@@ -49,57 +49,68 @@ export default function TimerSetSettings() {
   };
 
   return (
-    <>
-      <h2 style={{ marginTop: 40 }}>タイマーセット管理</h2>
+    <div>
+      <h2>タイマーセット管理</h2>
 
-      <input
-        type="text"
-        placeholder="セット名"
-        value={newSet.name}
-        onChange={(e) => setNewSet({ ...newSet, name: e.target.value })}
-      />
-      <input
-        type="number"
-        value={newSet.workDuration}
-        onChange={(e) =>
-          setNewSet({ ...newSet, workDuration: Number(e.target.value) })
-        }
-      />
-      <input
-        type="number"
-        value={newSet.breakDuration}
-        onChange={(e) =>
-          setNewSet({ ...newSet, breakDuration: Number(e.target.value) })
-        }
-      />
-      <input
-        type="number"
-        value={newSet.cycles}
-        onChange={(e) =>
-          setNewSet({ ...newSet, cycles: Number(e.target.value) })
-        }
-      />
-      <input
-        type="number"
-        value={newSet.longBreakDuration}
-        onChange={(e) =>
-          setNewSet({ ...newSet, longBreakDuration: Number(e.target.value) })
-        }
-      />
-
-      <button onClick={addSet}>追加</button>
+      <div className="form-row">
+        <input
+          className="input-text"
+          type="text"
+          placeholder="セット名"
+          value={newSet.name}
+          onChange={(e) => setNewSet({ ...newSet, name: e.target.value })}
+        />
+        <input
+          className="input-text"
+          type="number"
+          placeholder="作業(分)"
+          value={newSet.workDuration}
+          onChange={(e) =>
+            setNewSet({ ...newSet, workDuration: Number(e.target.value) })
+          }
+        />
+        <input
+          className="input-text"
+          type="number"
+          placeholder="休憩(分)"
+          value={newSet.breakDuration}
+          onChange={(e) =>
+            setNewSet({ ...newSet, breakDuration: Number(e.target.value) })
+          }
+        />
+        <input
+          className="input-text"
+          type="number"
+          placeholder="サイクル"
+          value={newSet.cycles}
+          onChange={(e) =>
+            setNewSet({ ...newSet, cycles: Number(e.target.value) })
+          }
+        />
+        <input
+          className="input-text"
+          type="number"
+          placeholder="長休憩(分)"
+          value={newSet.longBreakDuration}
+          onChange={(e) =>
+            setNewSet({ ...newSet, longBreakDuration: Number(e.target.value) })
+          }
+        />
+        <button className="btn-primary" onClick={addSet}>追加</button>
+      </div>
 
       <h2>既存のタイマーセット</h2>
       {timerSets.map((set) => (
-        <div key={set._id} style={{ border: "1px solid #ccc", margin: "5px" }}>
-          <strong>{set.name}</strong>
-          <p>
-            作業 {set.workDuration}分 / 休憩 {set.breakDuration}分 / {set.cycles}
-            サイクル  / 長休憩 {set.longBreakDuration}分
-          </p>
-          <button onClick={() => deleteSet(set._id)}>削除</button>
+        <div key={set._id} className="timer-set-item">
+          <div className="timer-set-title">{set.name}</div>
+          <div className="timer-set-meta">
+            作業 {set.workDuration}分 / 休憩 {set.breakDuration}分 / {set.cycles} サイクル / 長休憩 {set.longBreakDuration}分
+          </div>
+          <div style={{ marginTop: 8 }}>
+            <button className="btn-danger" onClick={() => deleteSet(set._id)}>削除</button>
+          </div>
         </div>
       ))}
-    </>
+    </div>
   );
 }

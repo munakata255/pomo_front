@@ -57,43 +57,44 @@ export default function Settings() {
   };
 
   return (
-    <div style={{ maxWidth: "480px", margin: "0 auto" }}>
+    <div>
       <h2>タスク管理</h2>
 
       {/* ▼ タスク追加 */}
-      <div style={{ marginBottom: "16px" }}>
+      <div className="form-row">
         <input
+          className="input-text"
           type="text"
           placeholder="新しいタスク名"
           value={newTask}
           onChange={(e) => setNewTask(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") addTask();
+          }}
         />
-        <button onClick={addTask}>追加</button>
+        <button className="btn-primary" onClick={addTask}>追加</button>
       </div>
 
       {/* ▼ タスク一覧 + 編集 + 削除 */}
-      <ul>
-        {tasks.map((task) => (
-          <li
-            key={task._id}
-            style={{
-              padding: "8px",
-              marginBottom: "8px",
-              border: "1px solid #ccc",
-              borderRadius: "8px",
-            }}
-          >
-            <input
-              type="text"
-              value={task.name}
-              onChange={(e) => updateTask(task._id, e.target.value)}
-              style={{ width: "200px", marginRight: "10px" }}
-            />
-
-            <button onClick={() => deleteTask(task._id)}>削除</button>
-          </li>
-        ))}
-      </ul>
+      {tasks.length === 0 ? (
+        <p className="tasks-empty">タスクがまだ登録されていません</p>
+      ) : (
+        <div className="tasks-list">
+          {tasks.map((task) => (
+            <div key={task._id} className="task-item">
+              <input
+                className="task-input"
+                type="text"
+                value={task.name}
+                onChange={(e) => updateTask(task._id, e.target.value)}
+              />
+              <button className="btn-danger" onClick={() => deleteTask(task._id)}>
+                削除
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

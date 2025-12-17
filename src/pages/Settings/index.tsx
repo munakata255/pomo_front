@@ -1,16 +1,23 @@
 import TaskSettings from "./TaskSettings";
 import TimerSetSettings from "./TimerSetSettings";
+import "../../styles/settings.css";
 
 export default function SettingsPage() {
   return (
-    <div style={{ maxWidth: 480, margin: "0 auto" }}>
-      <h1>設定</h1>
+    <div className="settings-page">
+      <div className="settings-container">
+        <h1 className="settings-title">⚙️ 設定</h1>
 
-      {/* ▼ タスク管理 */}
-      <TaskSettings />
+        {/* ▼ タスク管理 */}
+        <div className="settings-card">
+          <TaskSettings />
+        </div>
 
-      {/* ▼ タイマーセット管理 */}
-      <TimerSetSettings />
+        {/* ▼ タイマーセット管理 */}
+        <div className="settings-card">
+          <TimerSetSettings />
+        </div>
+      </div>
     </div>
   );
 }
