@@ -72,129 +72,226 @@ export default function Login() {
   };
 
   return (
-    <div style={{ padding: "20px", maxWidth: "400px", margin: "60px auto" }}>
-      <h2 style={{ textAlign: "center" }}>ログイン</h2>
-
-      {error && (
-        <div
-          style={{
-            padding: "10px",
-            marginBottom: "20px",
-            backgroundColor: "#fee",
-            border: "1px solid #fcc",
-            borderRadius: "4px",
-            color: "#c00",
-          }}
-        >
-          {error}
-        </div>
-      )}
-
-      <button
-        onClick={handleGoogleLogin}
-        disabled={loading}
+    <div
+      style={{
+        minHeight: "100vh",
+        background: "linear-gradient(135deg, #5bc0de 0%, #5dade2 100%)",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        padding: "20px",
+      }}
+    >
+      <div
         style={{
+          background: "white",
+          borderRadius: "12px",
+          padding: "40px 30px",
+          maxWidth: "420px",
           width: "100%",
-          padding: "12px",
-          fontSize: "16px",
-          backgroundColor: "#4285f4",
-          color: "white",
-          border: "none",
-          borderRadius: "4px",
-          cursor: loading ? "not-allowed" : "pointer",
-          marginBottom: "20px",
+          boxShadow: "0 12px 40px rgba(0, 0, 0, 0.15)",
         }}
       >
-        {loading ? "ログイン中..." : "Googleでログイン"}
-      </button>
+        {/* ロゴ/タイトル */}
+        <div style={{ textAlign: "center", marginBottom: "30px" }}>
+          <h1 style={{ fontSize: "24px", margin: "0", color: "#333" }}>pomo</h1>
+          <p style={{ fontSize: "12px", margin: "4px 0 0 0", color: "#999" }}>
+            ポモドーロタイマー
+          </p>
+        </div>
 
-      <div style={{ textAlign: "center", margin: "20px 0" }}>
+        {/* エラーメッセージ */}
+        {error && (
+          <div
+            style={{
+              padding: "12px",
+              marginBottom: "20px",
+              backgroundColor: "#ffeaea",
+              border: "2px solid #ff6b6b",
+              borderRadius: "6px",
+              color: "#c92a2a",
+              fontSize: "13px",
+            }}
+          >
+            {error}
+          </div>
+        )}
+
+        {/* Googleログインボタン */}
         <button
-          onClick={() => setShowDevLogin(!showDevLogin)}
+          onClick={handleGoogleLogin}
+          disabled={loading}
           style={{
-            background: "none",
+            width: "100%",
+            padding: "14px 16px",
+            fontSize: "15px",
+            fontWeight: "600",
+            backgroundColor: "#4285f4",
+            color: "white",
             border: "none",
-            color: "#666",
-            cursor: "pointer",
-            textDecoration: "underline",
-            fontSize: "14px",
+            borderRadius: "6px",
+            cursor: loading ? "not-allowed" : "pointer",
+            marginBottom: "16px",
+            transition: "background-color 0.2s",
+            opacity: loading ? 0.8 : 1,
           }}
         >
-          {showDevLogin ? "開発者ログインを隠す" : "開発者ログイン"}
+          {loading ? "ログイン中..." : "🔍 Googleでログイン"}
         </button>
-      </div>
 
-      {showDevLogin && (
-        <form onSubmit={handleEmailLogin} style={{ marginTop: "20px" }}>
-          <div style={{ 
-            padding: "10px", 
-            marginBottom: "15px", 
-            backgroundColor: "#f0f8ff", 
-            border: "1px solid #b0d4f1",
-            borderRadius: "4px",
-            fontSize: "12px",
-            color: "#0066cc"
-          }}>
-            <strong>開発用アカウント:</strong><br />
-            メール: dev@test.com<br />
-            パスワード: dev123
-          </div>
-          <div style={{ marginBottom: "15px" }}>
-            <label style={{ display: "block", marginBottom: "5px" }}>
-              メールアドレス
-            </label>
+        {/* 区切り線 */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            margin: "24px 0",
+          }}
+        >
+          <div style={{ flex: 1, height: "1px", backgroundColor: "#ddd" }} />
+          <span style={{ padding: "0 12px", fontSize: "13px", color: "#999" }}>
+            または
+          </span>
+          <div style={{ flex: 1, height: "1px", backgroundColor: "#ddd" }} />
+        </div>
+
+        {/* メールアドレスログイン */}
+        <form onSubmit={handleEmailLogin}>
+          <div style={{ marginBottom: "14px" }}>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              placeholder="dev@test.com"
+              placeholder="メールアドレス"
               style={{
                 width: "100%",
-                padding: "8px",
+                padding: "12px 14px",
                 fontSize: "14px",
-                border: "1px solid #ccc",
-                borderRadius: "4px",
+                border: "2px solid #e0e0e0",
+                borderRadius: "6px",
+                boxSizing: "border-box",
+                transition: "border-color 0.2s",
               }}
+              onFocus={(e) =>
+                (e.currentTarget.style.borderColor = "#5bc0de")
+              }
+              onBlur={(e) =>
+                (e.currentTarget.style.borderColor = "#e0e0e0")
+              }
             />
           </div>
-          <div style={{ marginBottom: "15px" }}>
-            <label style={{ display: "block", marginBottom: "5px" }}>
-              パスワード
-            </label>
+
+          <div style={{ marginBottom: "20px" }}>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              placeholder="dev123"
+              placeholder="パスワード"
               style={{
                 width: "100%",
-                padding: "8px",
+                padding: "12px 14px",
                 fontSize: "14px",
-                border: "1px solid #ccc",
-                borderRadius: "4px",
+                border: "2px solid #e0e0e0",
+                borderRadius: "6px",
+                boxSizing: "border-box",
+                transition: "border-color 0.2s",
               }}
+              onFocus={(e) =>
+                (e.currentTarget.style.borderColor = "#5bc0de")
+              }
+              onBlur={(e) =>
+                (e.currentTarget.style.borderColor = "#e0e0e0")
+              }
             />
           </div>
+
+          {/* 開発者ログイン情報 */}
+          {!showDevLogin && (
+            <div
+              style={{
+                padding: "12px",
+                marginBottom: "16px",
+                backgroundColor: "#f0f9ff",
+                border: "1px dashed #5bc0de",
+                borderRadius: "6px",
+                fontSize: "12px",
+                color: "#0066cc",
+                lineHeight: "1.5",
+              }}
+            >
+              <strong>📝 テスト用アカウント:</strong>
+              <br />
+              メール: dev@test.com
+              <br />
+              パス: dev123
+            </div>
+          )}
+
           <button
             type="submit"
             disabled={loading}
             style={{
               width: "100%",
-              padding: "12px",
-              fontSize: "16px",
-              backgroundColor: "#34a853",
+              padding: "14px 16px",
+              fontSize: "15px",
+              fontWeight: "600",
+              backgroundColor: "#5bc0de",
               color: "white",
               border: "none",
-              borderRadius: "4px",
+              borderRadius: "6px",
               cursor: loading ? "not-allowed" : "pointer",
+              marginBottom: "16px",
+              transition: "background-color 0.2s",
+              opacity: loading ? 0.8 : 1,
             }}
           >
-            {loading ? "ログイン中..." : "メールアドレスでログイン"}
+            {loading ? "ログイン中..." : "ログイン"}
           </button>
         </form>
-      )}
+
+        {/* 補助リンク */}
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: "8px",
+            textAlign: "center",
+            borderTop: "1px solid #eee",
+            paddingTop: "16px",
+          }}
+        >
+          <button
+            onClick={() => setShowDevLogin(!showDevLogin)}
+            style={{
+              background: "none",
+              border: "none",
+              color: "#5bc0de",
+              cursor: "pointer",
+              fontSize: "13px",
+              fontWeight: "500",
+              textDecoration: "none",
+              padding: "4px 0",
+            }}
+          >
+            ▶ {showDevLogin ? "テストログインを隠す" : "テストログイン"}
+          </button>
+          <button
+            style={{
+              background: "none",
+              border: "none",
+              color: "#5bc0de",
+              cursor: "pointer",
+              fontSize: "13px",
+              fontWeight: "500",
+              textDecoration: "none",
+              padding: "4px 0",
+            }}
+          >
+            ▶ ヘルプ
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
