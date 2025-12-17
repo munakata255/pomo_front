@@ -36,7 +36,7 @@ export default function Home() {
       {selectedTask && selectedTimerSet && (
         <div className="selected-info">
           <p>⏱️ <strong>{selectedTimerSet.name}</strong></p>
-          <p>作業: {selectedTimerSet.workDuration}分 | 休憩: {selectedTimerSet.breakDuration}分 | {selectedTimerSet.cycles}サイクル</p>
+          <p>作業: {selectedTimerSet.workDuration}分 | 休憩: {selectedTimerSet.breakDuration}分 | 長休憩: {selectedTimerSet.longBreakDuration ?? 0}分 | {selectedTimerSet.cycles}サイクル</p>
         </div>
       )}
     </div>

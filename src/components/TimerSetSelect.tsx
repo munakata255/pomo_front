@@ -70,7 +70,7 @@ export default function TimerSetSelect({
         <option value="">選択してください</option>
         {timerSets.map((set) => (
           <option key={set._id} value={set._id}>
-            {set.name}（{set.workDuration}分 + {set.breakDuration}分 + {set.longBreakDuration}分 + {set.cycles}サイクル）
+            {set.name}（🛠:{set.workDuration}分 + 🍵:{set.breakDuration}分 + 🌿{set.longBreakDuration ?? 0}分 + {set.cycles}サイクル）
           </option>
         ))}
       </select>
