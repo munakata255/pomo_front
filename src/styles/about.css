@@ -1,0 +1,52 @@
+/* About page styles */
+:root {
+  --about-bg-start: #5bc0de;
+  --about-bg-end: #5dade2;
+  --about-accent: #2e86de;
+  --about-muted: #777;
+  --card-radius: 12px;
+  --shadow: 0 8px 24px rgba(0,0,0,0.15);
+}
+
+.about-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, var(--about-bg-start) 0%, var(--about-bg-end) 100%);
+  padding: 20px;
+}
+
+.about-container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.about-title {
+  font-size: 32px;
+  font-weight: 700;
+  color: #fff;
+  text-align: center;
+  margin: 0 0 24px 0;
+}
+
+.about-card {
+  background: #fff;
+  border-radius: var(--card-radius);
+  padding: 24px;
+  box-shadow: var(--shadow);
+  margin-bottom: 16px;
+}
+
+.about-card h2 {
+  font-size: 20px;
+  margin: 0 0 12px 0;
+}
+
+.about-text { color: #333; line-height: 1.9; }
+
+.about-list { margin: 0; padding-left: 1.2rem; color: #333; line-height: 1.9; }
+
+.about-cta {
+  background: #f9fbff;
+  border: 2px dashed var(--about-accent);
+}
+.about-cta h3 { margin: 0 0 8px 0; }
+.about-cta p { margin: 0; color: var(--about-muted); }
