@@ -52,51 +52,98 @@ export default function TimerSetSettings() {
     <div>
       <h2>タイマーセット管理</h2>
 
-      <div className="form-row">
-        <input
-          className="input-text"
-          type="text"
-          placeholder="セット名"
-          value={newSet.name}
-          onChange={(e) => setNewSet({ ...newSet, name: e.target.value })}
-        />
-        <input
-          className="input-text"
-          type="number"
-          placeholder="作業(分)"
-          value={newSet.workDuration}
-          onChange={(e) =>
-            setNewSet({ ...newSet, workDuration: Number(e.target.value) })
-          }
-        />
-        <input
-          className="input-text"
-          type="number"
-          placeholder="休憩(分)"
-          value={newSet.breakDuration}
-          onChange={(e) =>
-            setNewSet({ ...newSet, breakDuration: Number(e.target.value) })
-          }
-        />
-        <input
-          className="input-text"
-          type="number"
-          placeholder="サイクル"
-          value={newSet.cycles}
-          onChange={(e) =>
-            setNewSet({ ...newSet, cycles: Number(e.target.value) })
-          }
-        />
-        <input
-          className="input-text"
-          type="number"
-          placeholder="長休憩(分)"
-          value={newSet.longBreakDuration}
-          onChange={(e) =>
-            setNewSet({ ...newSet, longBreakDuration: Number(e.target.value) })
-          }
-        />
-        <button className="btn-primary" onClick={addSet}>追加</button>
+      <div style={{ marginBottom: "20px", padding: "12px" }}>
+        {/* 1行目: セット名(70%) + サイクル数(30%) */}
+        <div style={{ display: "flex", gap: "16px", marginBottom: "12px" }}>
+          <div style={{ flex: "7" }}>
+            <label style={{ display: "block", marginBottom: "6px", fontWeight: "500", fontSize: "13px" }}>
+              セット名
+            </label>
+            <input
+              className="input-text"
+              type="text"
+              placeholder="例: ポモドーロ基本"
+              value={newSet.name}
+              onChange={(e) => setNewSet({ ...newSet, name: e.target.value })}
+              style={{ width: "100%", boxSizing: "border-box" }}
+            />
+          </div>
+
+          <div style={{ flex: "3" }}>
+            <label style={{ display: "block", marginBottom: "6px", fontWeight: "500", fontSize: "13px" }}>
+              サイクル数
+            </label>
+            <input
+              className="input-text"
+              type="number"
+              placeholder="4"
+              value={newSet.cycles}
+              onChange={(e) =>
+                setNewSet({ ...newSet, cycles: Number(e.target.value) })
+              }
+              style={{ width: "100%", boxSizing: "border-box" }}
+            />
+          </div>
+        </div>
+
+        {/* 2行目: 作業時間 + 休憩時間 + 長休憩 */}
+        <div style={{ display: "flex", gap: "16px", marginBottom: "12px" }}>
+          <div style={{ flex: "1" }}>
+            <label style={{ display: "block", marginBottom: "6px", fontWeight: "500", fontSize: "13px" }}>
+              🛠:作業時間（分）
+            </label>
+            <input
+              className="input-text"
+              type="number"
+              placeholder="25"
+              value={newSet.workDuration}
+              onChange={(e) =>
+                setNewSet({ ...newSet, workDuration: Number(e.target.value) })
+              }
+              style={{ width: "100%", boxSizing: "border-box" }}
+            />
+          </div>
+
+          <div style={{ flex: "1" }}>
+            <label style={{ display: "block", marginBottom: "6px", fontWeight: "500", fontSize: "13px" }}>
+              🍵:休憩時間（分）
+            </label>
+            <input
+              className="input-text"
+              type="number"
+              placeholder="5"
+              value={newSet.breakDuration}
+              onChange={(e) =>
+                setNewSet({ ...newSet, breakDuration: Number(e.target.value) })
+              }
+              style={{ width: "100%", boxSizing: "border-box" }}
+            />
+          </div>
+
+          <div style={{ flex: "1" }}>
+            <label style={{ display: "block", marginBottom: "6px", fontWeight: "500", fontSize: "13px" }}>
+              🌿:長休憩（分）
+            </label>
+            <input
+              className="input-text"
+              type="number"
+              placeholder="15"
+              value={newSet.longBreakDuration}
+              onChange={(e) =>
+                setNewSet({ ...newSet, longBreakDuration: Number(e.target.value) })
+              }
+              style={{ width: "100%", boxSizing: "border-box" }}
+            />
+          </div>
+        </div>
+
+        <button 
+          className="btn-primary" 
+          onClick={addSet}
+          style={{ marginTop: "12px", width: "100%" }}
+        >
+          追加
+        </button>
       </div>
 
       <h2>既存のタイマーセット</h2>
