@@ -60,7 +60,7 @@ export default function TaskSelect({ selectedTask, onSelectTask }: Props) {
 
   return (
     <div style={{ margin: "20px 0" }}>
-      <label>Task: </label>
+      <label style={{fontSize: "20px" }}>Task: </label>
       <select
         value={selectedTask}
         onChange={(e) => onSelectTask(e.target.value)}

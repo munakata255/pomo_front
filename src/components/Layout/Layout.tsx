@@ -74,7 +74,12 @@ export default function Layout() {
           zIndex: 100,
         }}
       >
-        <h2 style={{ margin: 0, fontSize: "18px" }}>PomoFlow</h2>
+        <div style={{ display: "flex", alignItems: "center", gap: "px" }}>
+          <img src="/pomo.svg" alt="PomoFlow logo" width={24} height={24} />
+          <h2 style={{ margin: 0, fontSize: "20px", fontWeight: "bold" }}>
+            PomoFlow
+          </h2>
+        </div>
 
         {/* タイマー状態表示 */}
         {isRunning && (
@@ -162,7 +167,7 @@ export default function Layout() {
       </header>
 
       {/* 各ページ */}
-      <main style={{ padding: "20px", paddingTop: "70px" }}>
+      <main style={{ padding: "0px", paddingTop: "50px" }}>
         <Outlet />
       </main>
 
@@ -210,7 +215,9 @@ export default function Layout() {
               <div>
                 <h3 style={{ marginTop: 0 }}>ユーザー情報</h3>
                 <p style={{ margin: "6px 0" }}>✅ {getUserDisplayName()}</p>
-                <p style={{ margin: "4px 0", opacity: 0.7, fontSize: "12px" }}>{user.email}</p>
+                <p style={{ margin: "4px 0", opacity: 0.7, fontSize: "12px" }}>
+                  {user.email}
+                </p>
                 <button
                   onClick={handleLogout}
                   style={{

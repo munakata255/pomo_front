@@ -48,7 +48,7 @@ export default function Timer() {
   const strokeColor = phase === "work" ? "#1976d2" : phase === "break" ? "#a2ccf7ff" : "#388e3c";
 
   return (
-    <div style={{ marginTop: "40px" }}>
+    <div style={{ marginTop: "20px"}}>
       {/* 円形プログレスバー */}
       <div style={{ position: "relative", width: "300px", height: "300px", margin: "0 auto 30px" }}>
         <svg width="300" height="300" style={{ transform: "rotate(-90deg)" }}>

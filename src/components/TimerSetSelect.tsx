@@ -59,7 +59,7 @@ export default function TimerSetSelect({
 
   return (
     <div style={{ margin: "20px 0" }}>
-      <label>Timer Set: </label>
+      <label style={{fontSize: "20px" }}>Timer Set: </label>
       <select
         value={selectedTimerSetId}
         onChange={(e) => {
