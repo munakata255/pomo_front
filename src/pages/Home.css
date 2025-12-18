@@ -190,7 +190,7 @@ button:active:not(:disabled) {
   }
 
   .selection-section {
-    flex: 0 0 220px;
+    flex: 0 0 320px;
     padding: 10px 12px;
   }
 
