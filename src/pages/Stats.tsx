@@ -181,7 +181,7 @@ export default function Stats() {
         padding: "20px",
       }}
     >
-      <div style={{ maxWidth: "600px", margin: "0 auto" }}>
+      <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
         {/* ページタイトル */}
         <h1
           style={{
