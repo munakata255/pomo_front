@@ -93,17 +93,43 @@ export default function Timer() {
         サイクル数: {cycle} / {selectedTimerSet?.cycles || 1}
       </div>
 
-      <div style={{ display: "flex", gap: "10px", justifyContent: "center" }}>
-        <button onClick={start} disabled={isRunning}>
+      <div style={{ display: "flex", gap: "15px", justifyContent: "center" }}>
+        <button 
+          onClick={start} 
+          disabled={isRunning}
+          style={{
+            padding: "16px 32px",
+            fontSize: "18px",
+          }}
+        >
           Start
         </button>
-        <button onClick={stop} disabled={!isRunning}>
+        <button 
+          onClick={stop} 
+          disabled={!isRunning}
+          style={{
+            padding: "16px 32px",
+            fontSize: "18px",
+          }}
+        >
           Stop
         </button>
-        <button onClick={reset}>Reset</button>
+        <button 
+          onClick={reset}
+          style={{
+            padding: "16px 32px",
+            fontSize: "18px",
+          }}
+        >
+          Reset
+        </button>
         <button
           onClick={save}
           disabled={isRunning || !hasTimerStarted || phase !== "work"}
+          style={{
+            padding: "16px 32px",
+            fontSize: "18px",
+          }}
         >
           Save
         </button>
