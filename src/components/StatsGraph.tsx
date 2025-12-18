@@ -12,7 +12,7 @@ export default function StatsGraph({ data }: Props) {
         <XAxis dataKey="date" />
         <YAxis />
         <Tooltip />
-        <Line type="monotone" dataKey="minutes" stroke="#8884d8" strokeWidth={2} />
+        <Line type="monotone" dataKey="minutes" stroke="#1976d2" strokeWidth={2} />
       </LineChart>
     </div>
   );

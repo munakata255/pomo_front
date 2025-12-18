@@ -177,7 +177,7 @@ export default function Stats() {
     <div
       style={{
         minHeight: "100vh",
-        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+        background: "linear-gradient(135deg, #1976d2 0%, white 100%)",
         padding: "20px",
       }}
     >
@@ -219,14 +219,14 @@ export default function Stats() {
                 boxShadow: "0 8px 24px rgba(0, 0, 0, 0.15)",
               }}
             >
-              <h2 style={{ fontSize: "14px", color: "#999", margin: "0 0 16px 0" }}>
+              <h2 style={{ fontSize: "14px", color: "#04111eff", margin: "0 0 16px 0" }}>
                 総学習時間
               </h2>
               <div
                 style={{
                   fontSize: "48px",
                   fontWeight: "700",
-                  color: "#667eea",
+                  color: "#333",
                   marginBottom: "12px",
                 }}
               >
@@ -255,7 +255,7 @@ export default function Stats() {
                   <h3
                     style={{
                       fontSize: "14px",
-                      color: "#999",
+                      color: "#04111eff",
                       margin: "0 0 16px 0",
                     }}
                   >
@@ -284,7 +284,7 @@ export default function Stats() {
                         padding: "10px 12px",
                         borderRadius: "6px",
                         border: "none",
-                        background: selectedDate ? "#667eea" : "#ccc",
+                        background: selectedDate ? "#3a8ada" : "#ccc",
                         color: "white",
                         fontWeight: "600",
                         cursor: selectedDate ? "pointer" : "not-allowed",
@@ -307,7 +307,7 @@ export default function Stats() {
                         border: "none",
                         background:
                           selectedDate !== "" || selectedDateStats !== null
-                            ? "#764ba2"
+                            ? "#abaaaaff"
                             : "#ccc",
                         color: "white",
                         fontWeight: "600",
@@ -341,7 +341,7 @@ export default function Stats() {
                       style={{
                         fontSize: "28px",
                         fontWeight: "700",
-                        color: "#667eea",
+                        color: "#333",
                         margin: "8px 0",
                       }}
                     >
@@ -395,7 +395,7 @@ export default function Stats() {
                       style={{
                         fontSize: "28px",
                         fontWeight: "700",
-                        color: "#667eea",
+                        color: "#1976d2",
                         margin: "8px 0",
                       }}
                     >
@@ -463,7 +463,7 @@ export default function Stats() {
                         {tasks.find((task) => task._id === t.taskId)?.name ||
                           "不明なタスク"}
                       </span>
-                      <span style={{ fontWeight: "600", color: "#667eea" }}>
+                      <span style={{ fontSize:"17px"  ,fontWeight: "600", color: "#04111eff" }}>
                         {(t.seconds / 60).toFixed(1)} 分
                       </span>
                     </div>
@@ -493,7 +493,7 @@ export default function Stats() {
                     padding: "8px 12px",
                     borderRadius: "6px",
                     border: "none",
-                    background: mode === "daily" ? "#667eea" : "#f0f0f0",
+                    background: mode === "daily" ? "#3a8ada" : "#f0f0f0",
                     color: mode === "daily" ? "white" : "#666",
                     fontWeight: "600",
                     fontSize: "12px",
@@ -509,7 +509,7 @@ export default function Stats() {
                     padding: "8px 12px",
                     borderRadius: "6px",
                     border: "none",
-                    background: mode === "weekly" ? "#667eea" : "#f0f0f0",
+                    background: mode === "weekly" ? "#3a8ada" : "#f0f0f0",
                     color: mode === "weekly" ? "white" : "#666",
                     fontWeight: "600",
                     fontSize: "12px",
@@ -525,7 +525,7 @@ export default function Stats() {
                     padding: "8px 12px",
                     borderRadius: "6px",
                     border: "none",
-                    background: mode === "monthly" ? "#667eea" : "#f0f0f0",
+                    background: mode === "monthly" ? "#3a8ada" : "#f0f0f0",
                     color: mode === "monthly" ? "white" : "#666",
                     fontWeight: "600",
                     fontSize: "12px",

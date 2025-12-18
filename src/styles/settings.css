@@ -2,7 +2,7 @@
 :root {
   --settings-bg-start: #667eea;
   --settings-bg-end: #764ba2;
-  --accent: #667eea;
+  --accent: #3a8ada;
   --accent-2: #764ba2;
   --danger: #ff6b6b;
   --muted: #999;
@@ -13,7 +13,7 @@
 
 .settings-page {
   min-height: 100vh;
-  background: linear-gradient(135deg, var(--settings-bg-start) 0%, var(--settings-bg-end) 100%);
+  background: linear-gradient(135deg, #1976d2 0%, white 100%);
   padding: 20px;
 }
 

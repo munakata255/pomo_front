@@ -84,7 +84,7 @@ export default function Timer() {
       <h2 style={{ fontSize: "100px", marginBottom: "20px" }}>
         {formatTime(timeLeft)}
       </h2>
-      <div style={{ fontSize: "24px", marginBottom: "10px" }}>
+      <div style={{ fontSize: "28px", marginBottom: "10px" }}>
         {phase === "work" && "🛠 作業中"}
         {phase === "break" && "🍵 休憩中"}
         {phase === "longBreak" && "🌿 長い休憩中"}
