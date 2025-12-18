@@ -8,7 +8,7 @@ import "./nav.css";
 
 export default function Layout() {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, role } = useAuth();
   const { timeLeft, isRunning, phase } = useTimerContext();
   const [showAuthModal, setShowAuthModal] = useState(false);
 
@@ -129,6 +129,19 @@ export default function Layout() {
           >
             About
           </NavLink>
+
+          {/* 管理者専用リンク */}
+          {role === "admin" && (
+            <NavLink
+              to="/admin"
+              className={({ isActive }) =>
+                isActive ? "nav-link active" : "nav-link"
+              }
+              style={{ color: "#ff6b6b", fontWeight: "700" }}
+            >
+              Admin
+            </NavLink>
+          )}
 
           {/* ユーザー情報ボタン（ヘッダー右端） */}
           <button

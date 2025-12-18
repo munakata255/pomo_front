@@ -6,6 +6,7 @@ import Stats from "./pages/Stats";
 import Settings from "./pages/Settings/index";
 import About from "./pages/About";
 import Login from "./pages/Login";
+import Admin from "./pages/Admin";
 
 // layout
 import Layout from "./components/Layout/Layout";
@@ -25,6 +26,7 @@ function App() {
             <Route path="/stats" element={<Stats />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/about" element={<About />} />
+            <Route path="/admin" element={<Admin />} />
           </Route>
 
           {/* ログインは Layout なし */}
