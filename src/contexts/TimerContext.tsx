@@ -53,6 +53,41 @@ export function TimerProvider({ children }: { children: ReactNode }) {
   const intervalRef = useRef<number | null>(null);
   const startedAtRef = useRef<Date | null>(null);
   const currentPhaseInitialTimeRef = useRef(0);
+  const finishInFlightRef = useRef(false);
+
+  const getPhaseSeconds = (phase: Phase) => {
+    if (phase === "work") return Math.max(1, Math.round((selectedTimerSet?.workDuration ?? 25) * 60));
+    if (phase === "break") return Math.max(1, Math.round((selectedTimerSet?.breakDuration ?? 5) * 60));
+    return Math.max(1, Math.round((selectedTimerSet?.longBreakDuration ?? 0.01) * 60));
+  };
+
+  const startPhase = (nextPhase: Phase, options?: { incrementCycle?: boolean; resetCycle?: boolean }) => {
+    if (intervalRef.current !== null) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+
+    const nextSec = getPhaseSeconds(nextPhase);
+
+    phaseRef.current = nextPhase;
+    setPhase(nextPhase);
+
+    if (options?.resetCycle) {
+      cycleRef.current = 1;
+      setCycle(1);
+    } else if (options?.incrementCycle) {
+      cycleRef.current += 1;
+      setCycle(cycleRef.current);
+    }
+
+    setTimeLeft(nextSec);
+    setInitialTime(nextSec);
+    timeLeftRef.current = nextSec;
+    currentPhaseInitialTimeRef.current = nextSec;
+    startedAtRef.current = new Date();
+
+    startTimer();
+  };
 
   // サウンドを再生する関数
   const playSound = (soundFile: string) => {
@@ -68,8 +103,14 @@ export function TimerProvider({ children }: { children: ReactNode }) {
 
   // タイマーが終了したときの処理
   const handleFinish = async () => {
+    if (finishInFlightRef.current) return;
+    finishInFlightRef.current = true;
+
     const currentPhase = phaseRef.current;
-    if (!startedAtRef.current) return;
+    if (!startedAtRef.current) {
+      finishInFlightRef.current = false;
+      return;
+    }
 
     // フェーズに応じた音を再生
     if (currentPhase === "work") {
@@ -79,9 +120,8 @@ export function TimerProvider({ children }: { children: ReactNode }) {
     }
 
     // work フェーズのときだけ学習ログを保存
-    if (currentPhase === "work") {
+    if (currentPhase === "work" && user?.uid) {
       const duration = currentPhaseInitialTimeRef.current - timeLeftRef.current;
-      if (!user?.uid) return;
       try {
         await axios.post("http://localhost:5001/studyLogs", {
           userId: user.uid,
@@ -98,63 +138,31 @@ export function TimerProvider({ children }: { children: ReactNode }) {
     }
 
     // フェーズ切り替え
-    if (currentPhase === "work") {
-      // work → break
-      phaseRef.current = "break";
-      setPhase("break");
-      const nextSec = (selectedTimerSet?.breakDuration ?? 5) * 60;
-      setTimeLeft(nextSec);
-      setInitialTime(nextSec);
-      timeLeftRef.current = nextSec;
-      currentPhaseInitialTimeRef.current = nextSec;
-      startedAtRef.current = new Date();
-      startTimer();
-    } else if (currentPhase === "break") {
-      const isLastCycle = cycleRef.current === (selectedTimerSet?.cycles ?? 1);
-      if (isLastCycle) {
-        // 最後の break の後は longBreak
-        phaseRef.current = "longBreak";
-        setPhase("longBreak");
-        const nextSec = (selectedTimerSet?.longBreakDuration ?? 0.01) * 60;
-        setTimeLeft(nextSec);
-        setInitialTime(nextSec);
-        timeLeftRef.current = nextSec;
-        currentPhaseInitialTimeRef.current = nextSec;
-        startedAtRef.current = new Date();
-        startTimer();
-      } else {
-        // 通常サイクルは work に戻る
-        phaseRef.current = "work";
-        setPhase("work");
-        cycleRef.current += 1;
-        setCycle(cycleRef.current);
-        const nextSec = (selectedTimerSet?.workDuration ?? 25) * 60;
-        setTimeLeft(nextSec);
-        setInitialTime(nextSec);
-        timeLeftRef.current = nextSec;
-        currentPhaseInitialTimeRef.current = nextSec;
-        startedAtRef.current = new Date();
-        startTimer();
+    try {
+      if (currentPhase === "work") {
+        // work → break
+        startPhase("break");
+      } else if (currentPhase === "break") {
+        const isLastCycle = cycleRef.current === (selectedTimerSet?.cycles ?? 1);
+        if (isLastCycle) {
+          // 最後の break の後は longBreak
+          startPhase("longBreak");
+        } else {
+          // 通常サイクルは work に戻る
+          startPhase("work", { incrementCycle: true });
+        }
+      } else if (currentPhase === "longBreak") {
+        // 全サイクル完了
+        const shouldContinue = window.confirm("サイクルが完了しました！続けますか？");
+        if (shouldContinue) {
+          startPhase("work", { resetCycle: true });
+        } else {
+          // リセット
+          resetTimer();
+        }
       }
-    } else if (currentPhase === "longBreak") {
-      // 全サイクル完了
-      const shouldContinue = window.confirm("サイクルが完了しました！続けますか？");
-      if (shouldContinue) {
-        cycleRef.current = 1;
-        setCycle(1);
-        phaseRef.current = "work";
-        setPhase("work");
-        const nextSec = (selectedTimerSet?.workDuration ?? 25) * 60;
-        setTimeLeft(nextSec);
-        setInitialTime(nextSec);
-        timeLeftRef.current = nextSec;
-        currentPhaseInitialTimeRef.current = nextSec;
-        startedAtRef.current = new Date();
-        startTimer();
-      } else {
-        // リセット
-        resetTimer();
-      }
+    } finally {
+      finishInFlightRef.current = false;
     }
   };
 
@@ -164,17 +172,15 @@ export function TimerProvider({ children }: { children: ReactNode }) {
     
     setIsRunning(true);
     intervalRef.current = window.setInterval(() => {
-      setTimeLeft((prev) => {
-        timeLeftRef.current = prev - 1;
-        if (prev <= 1) {
-          clearInterval(intervalRef.current!);
-          intervalRef.current = null;
-          setIsRunning(false);
-          handleFinish();
-          return 0;
-        }
-        return prev - 1;
-      });
+      timeLeftRef.current = timeLeftRef.current - 1;
+      setTimeLeft(timeLeftRef.current);
+      
+      if (timeLeftRef.current <= 0) {
+        clearInterval(intervalRef.current!);
+        intervalRef.current = null;
+        setIsRunning(false);
+        handleFinish();
+      }
     }, 1000);
   };
 
@@ -297,7 +303,8 @@ export function TimerProvider({ children }: { children: ReactNode }) {
       resetTimer();
     }
     setSelectedTimerSet(timerSet);
-    if (timerSet) {
+    // resetTimer() が既に時間を設定しているので、hasTimerStarted が false の場合のみ更新
+    if (timerSet && !hasTimerStarted) {
       const initialTime = timerSet.workDuration * 60;
       setTimeLeft(initialTime);
       setInitialTime(initialTime);
