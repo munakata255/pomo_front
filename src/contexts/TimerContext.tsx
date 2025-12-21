@@ -6,7 +6,7 @@ import {
   useEffect,
 } from "react";
 import type { ReactNode } from "react";
-import axios from "axios";
+import { api } from "../api/client";
 import { useAuth } from "./AuthContext";
 import type { TimerSet, Phase } from "../types";
 
@@ -83,7 +83,7 @@ export function TimerProvider({ children }: { children: ReactNode }) {
       const duration = currentPhaseInitialTimeRef.current - timeLeftRef.current;
       if (!user?.uid) return;
       try {
-        await axios.post("http://localhost:5001/studyLogs", {
+        await api.post("/studyLogs", {
           userId: user.uid,
           taskId: selectedTask,
           timerSetId: selectedTimerSet?._id || "",
@@ -271,7 +271,7 @@ export function TimerProvider({ children }: { children: ReactNode }) {
     const durationSeconds = currentPhaseInitialTimeRef.current - timeLeftRef.current;
 
     try {
-      await axios.post("http://localhost:5001/studyLogs", {
+      await api.post("/studyLogs", {
         userId: user.uid,
         taskId: selectedTask,
         timerSetId: selectedTimerSet?._id,

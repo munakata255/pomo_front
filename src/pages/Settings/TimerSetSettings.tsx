@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import { api } from "../../api/client";
 import { useAuth } from "../../contexts/AuthContext";
 
 type TimerSet = {
@@ -25,7 +25,7 @@ export default function TimerSetSettings() {
   useEffect(() => {
     const fetch = async () => {
       if (!user?.uid) return;
-      const res = await axios.get("http://localhost:5001/timerSets", {
+      const res = await api.get("/timerSets", {
         params: { userId: user.uid },
       });
       setTimerSets(res.data);
@@ -35,7 +35,7 @@ export default function TimerSetSettings() {
 
   const addSet = async () => {
     if (!user?.uid) return;
-    const res = await axios.post("http://localhost:5001/timerSets", {
+    const res = await api.post("/timerSets", {
       userId: user.uid,
       ...newSet,
     });
@@ -44,7 +44,7 @@ export default function TimerSetSettings() {
   };
 
   const deleteSet = async (id: string) => {
-    await axios.delete(`http://localhost:5001/timerSets/${id}`);
+    await api.delete(`/timerSets/${id}`);
     setTimerSets(timerSets.filter((s) => s._id !== id));
   };
 

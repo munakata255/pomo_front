@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import { api } from "../api/client";
 import { useAuth } from "../contexts/AuthContext";
 import type { Task } from "../types";
 
@@ -34,7 +34,7 @@ export default function TaskSelect({ selectedTask, onSelectTask }: Props) {
 
       // ログイン時: バックエンドから取得
       try {
-        const res = await axios.get("http://localhost:5001/tasks", {
+        const res = await api.get("/tasks", {
           params: { userId: user.uid },
         });
         setTasks(res.data);
