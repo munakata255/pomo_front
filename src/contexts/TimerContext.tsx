@@ -9,6 +9,8 @@ import type { ReactNode } from "react";
 import { api } from "../api/client";
 import { useAuth } from "./AuthContext";
 import type { TimerSet, Phase } from "../types";
+import finishWorkSound from "../assets/sounds/finishWork.mp3";
+import finishBreakSound from "../assets/sounds/finishBreak.mp3";
 
 interface TimerContextType {
   // タイマーの状態
@@ -90,9 +92,9 @@ export function TimerProvider({ children }: { children: ReactNode }) {
   };
 
   // サウンドを再生する関数
-  const playSound = (soundFile: string) => {
+  const playSound = (soundUrl: string) => {
     try {
-      const audio = new Audio(`/sounds/${soundFile}`);
+      const audio = new Audio(soundUrl);
       audio.play().catch((error) => {
         console.error("音声再生エラー:", error);
       });
@@ -114,9 +116,9 @@ export function TimerProvider({ children }: { children: ReactNode }) {
 
     // フェーズに応じた音を再生
     if (currentPhase === "work") {
-      playSound("finishWork.mp3");
+      playSound(finishWorkSound);
     } else if (currentPhase === "break" || currentPhase === "longBreak") {
-      playSound("finishBreak.mp3");
+      playSound(finishBreakSound);
     }
 
     // work フェーズのときだけ学習ログを保存

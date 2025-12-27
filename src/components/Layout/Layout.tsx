@@ -4,6 +4,7 @@ import { useTimerContext } from "../../contexts/TimerContext";
 import { useAuth } from "../../contexts/AuthContext";
 import { signOut } from "firebase/auth";
 import { auth } from "../../lib/firebase";
+import pomoLogo from "../../assets/pomo.svg";
 import "./nav.css";
 
 export default function Layout() {
@@ -75,7 +76,7 @@ export default function Layout() {
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: "px" }}>
-          <img src="/pomo.svg" alt="PomoFlow logo" width={24} height={24} />
+          <img src={pomoLogo} alt="PomoFlow logo" width={24} height={24} />
           <h2 style={{ margin: 0, fontSize: "20px", fontWeight: "bold" }}>
             PomoFlow
           </h2>
