@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import { api } from "../api/client";
 import StatsGraph from "../components/StatsGraph";
 import { useAuth } from "../contexts/AuthContext";
 import type { StatsData, StudyLog, Task, TaskSummary } from "../types";
@@ -18,7 +18,7 @@ export default function Stats() {
     const fetchTasks = async () => {
       if (!user?.uid) return;
       try {
-        const res = await axios.get("http://localhost:5001/tasks", {
+        const res = await api.get("/tasks", {
           params: { userId: user.uid },
         });
         setTasks(res.data);
@@ -34,7 +34,7 @@ export default function Stats() {
     const fetchStats = async () => {
       if (!user?.uid) return;
       try {
-        const res = await axios.get("http://localhost:5001/stats", {
+        const res = await api.get("/stats", {
           params: { userId: user.uid },
         });
 
@@ -52,7 +52,7 @@ export default function Stats() {
     const fetchLogs = async () => {
       if (!user?.uid) return;
       try {
-        const res = await axios.get("http://localhost:5001/studyLogs", {
+        const res = await api.get("/studyLogs", {
           params: { userId: user.uid },
         });
         setLogs(res.data);
@@ -67,7 +67,7 @@ export default function Stats() {
     const fetchTodayStats = async () => {
       if (!user?.uid) return;
       try {
-        const res = await axios.get("http://localhost:5001/stats/today", {
+        const res = await api.get("/stats/today", {
           params: { userId: user.uid },
         });
         setTodayStats(res.data);
@@ -82,7 +82,7 @@ export default function Stats() {
     if (!date || !user?.uid) return;
 
     try {
-      const res = await axios.get("http://localhost:5001/stats/byDate", {
+      const res = await api.get("/stats/byDate", {
         params: { userId: user.uid, date },
       });
 

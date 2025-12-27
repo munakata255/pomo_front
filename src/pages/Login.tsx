@@ -1,4 +1,4 @@
-import { signInWithPopup, signInWithEmailAndPassword } from "firebase/auth";
+import { signInWithPopup } from "firebase/auth";
 import { auth, provider } from "../lib/firebase";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
@@ -7,9 +7,9 @@ import { useEffect, useState } from "react";
 export default function Login() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [showDevLogin, setShowDevLogin] = useState(false);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  // const [showDevLogin, setShowDevLogin] = useState(false);
+  // const [email, setEmail] = useState("");
+  // const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -35,41 +35,41 @@ export default function Login() {
     }
   };
 
-  const handleEmailLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    // 開発用の固定アカウント
-    const DEV_EMAIL = "dev@test.com";
-    const DEV_PASSWORD = "dev123";
-    
-    try {
-      setLoading(true);
-      setError("");
-      
-      // 開発用アカウントのチェック
-      if (email === DEV_EMAIL && password === DEV_PASSWORD) {
-        // 開発用の固定ユーザーオブジェクト（uid: "testuser"）
-        const devUser = {
-          uid: "testuser",
-          email: "dev@test.com",
-          displayName: "開発用ユーザー",
-        };
-        localStorage.setItem("devUser", JSON.stringify(devUser));
-        // ページをリロードしてAuthContextに反映
-        window.location.href = "/";
-        return;
-      }
-      
-      // それ以外はFirebase認証を試みる
-      await signInWithEmailAndPassword(auth, email, password);
-      navigate("/");
-    } catch (err) {
-      setError("メールアドレスまたはパスワードが間違っています");
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
+  // const handleEmailLogin = async (e: React.FormEvent) => {
+  //   e.preventDefault();
+  //   
+  //   // 開発用の固定アカウント
+  //   // const DEV_EMAIL = "dev@test.com";
+  //   // const DEV_PASSWORD = "dev123";
+  //   
+  //   try {
+  //     setLoading(true);
+  //     setError("");
+  //     
+  //     // 開発用アカウントのチェック
+  //     // if (email === DEV_EMAIL && password === DEV_PASSWORD) {
+  //     //   // 開発用の固定ユーザーオブジェクト（uid: "testuser"）
+  //     //   const devUser = {
+  //     //     uid: "testuser",
+  //     //     email: "dev@test.com",
+  //     //     displayName: "開発用ユーザー",
+  //     //   };
+  //     //   localStorage.setItem("devUser", JSON.stringify(devUser));
+  //     //   // ページをリロードしてAuthContextに反映
+  //     //   window.location.href = "/";
+  //     //   return;
+  //     // }
+  //     
+  //     // それ以外はFirebase認証を試みる
+  //     await signInWithEmailAndPassword(auth, email, password);
+  //     navigate("/");
+  //   } catch (err) {
+  //     setError("メールアドレスまたはパスワードが間違っています");
+  //     console.error(err);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
   return (
     <div
@@ -94,9 +94,9 @@ export default function Login() {
       >
         {/* ロゴ/タイトル */}
         <div style={{ textAlign: "center", marginBottom: "30px" }}>
-          <h1 style={{ fontSize: "24px", margin: "0", color: "#333" }}>pomo</h1>
+          <h1 style={{ fontSize: "24px", margin: "0", color: "#333" }}>PomoFlow</h1>
           <p style={{ fontSize: "12px", margin: "4px 0 0 0", color: "#999" }}>
-            ポモドーロタイマー
+            ポモフローへようこそ！！
           </p>
         </div>
 
@@ -140,7 +140,7 @@ export default function Login() {
         </button>
 
         {/* 区切り線 */}
-        <div
+        {/* <div
           style={{
             display: "flex",
             alignItems: "center",
@@ -152,9 +152,9 @@ export default function Login() {
             または
           </span>
           <div style={{ flex: 1, height: "1px", backgroundColor: "#ddd" }} />
-        </div>
+        </div> */}
 
-        {/* メールアドレスログイン */}
+        {/* メールアドレスログイン
         <form onSubmit={handleEmailLogin}>
           <div style={{ marginBottom: "14px" }}>
             <input
@@ -206,7 +206,7 @@ export default function Login() {
             />
           </div>
 
-          {/* 開発者ログイン情報 */}
+          開発者ログイン情報
           {!showDevLogin && (
             <div
               style={{
@@ -249,8 +249,9 @@ export default function Login() {
             {loading ? "ログイン中..." : "ログイン"}
           </button>
         </form>
+        */}
 
-        {/* 補助リンク */}
+        {/* 補助リンク
         <div
           style={{
             display: "flex",
@@ -291,6 +292,7 @@ export default function Login() {
             ▶ ヘルプ
           </button>
         </div>
+        */}
       </div>
     </div>
   );

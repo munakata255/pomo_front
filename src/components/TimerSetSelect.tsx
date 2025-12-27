@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import { api } from "../api/client";
 import { useAuth } from "../contexts/AuthContext";
 import type { TimerSet } from "../types";
 
@@ -39,7 +39,7 @@ export default function TimerSetSelect({
       }
 
       // ログイン時: サーバーから取得
-      const res = await axios.get("http://localhost:5001/timerSets", {
+      const res = await api.get("/timerSets", {
         params: { userId: user.uid },
       });
       setTimerSets(res.data);

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import { api } from "../../api/client";
 import { useAuth } from "../../contexts/AuthContext";
 
 type Task = {
@@ -18,7 +18,7 @@ export default function Settings() {
   useEffect(() => {
     const fetchTasks = async () => {
       if (!user?.uid) return;
-      const res = await axios.get("http://localhost:5001/tasks", {
+      const res = await api.get("/tasks", {
         params: { userId: user.uid },
       });
       setTasks(res.data);
@@ -30,7 +30,7 @@ export default function Settings() {
   const addTask = async () => {
     if (!newTask.trim() || !user?.uid) return;
 
-    const res = await axios.post("http://localhost:5001/tasks", {
+    const res = await api.post("/tasks", {
       userId: user.uid,
       name: newTask,
       color: "#FFA500",
@@ -43,13 +43,13 @@ export default function Settings() {
 
   // ▼ タスク削除
   const deleteTask = async (id: string) => {
-    await axios.delete(`http://localhost:5001/tasks/${id}`);
+    await api.delete(`/tasks/${id}`);
     setTasks(tasks.filter((t) => t._id !== id));
   };
 
   // ▼ タスク名更新
   const updateTask = async (id: string, newName: string) => {
-    const res = await axios.put(`http://localhost:5001/tasks/${id}`, {
+    const res = await api.put(`/tasks/${id}`, {
       name: newName,
     });
 

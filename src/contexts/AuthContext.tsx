@@ -26,13 +26,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     // 開発用ユーザーのチェック
-    const devUserStr = localStorage.getItem("devUser");
-    if (devUserStr) {
-      const devUser: DevUser = JSON.parse(devUserStr);
-      setUser(devUser);
-      setRole("admin"); // 開発ユーザーはadminとして扱う
-      return;
-    }
+    // const devUserStr = localStorage.getItem("devUser");
+    // if (devUserStr) {
+    //   const devUser: DevUser = JSON.parse(devUserStr);
+    //   setUser(devUser);
+    //   setRole("admin"); // 開発ユーザーはadminとして扱う
+    //   return;
+    // }
 
     // Firebase認証のユーザー監視
     const unsubscribe = onAuthStateChanged(auth, async (u) => {
@@ -62,11 +62,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         }
       } else {
         // ログアウト時は開発用ユーザーもクリア
-        const devUserStr = localStorage.getItem("devUser");
-        if (!devUserStr) {
+        // const devUserStr = localStorage.getItem("devUser");
+        // if (!devUserStr) {
           setUser(null);
           setRole(null);
-        }
+        // }
       }
     });
     return () => unsubscribe();
