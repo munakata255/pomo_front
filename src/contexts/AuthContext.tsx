@@ -3,13 +3,7 @@ import { auth, db } from "../lib/firebase";
 import { onAuthStateChanged, signOut as firebaseSignOut } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import type { User as FirebaseUser } from "firebase/auth";
-
-// 開発用ユーザーの型定義
-interface DevUser {
-  uid: string;
-  email: string;
-  displayName?: string;
-}
+import type { DevUser } from "../types";
 
 // コンテキストの型定義
 interface AuthContextType {

@@ -3,13 +3,8 @@ import { useAuth } from "../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { db } from "../lib/firebase";
 import { collection, doc, setDoc, getDocs, Timestamp } from "firebase/firestore";
+import type { AllowedUser } from "../types";
 import "../styles/settings.css";
-
-type AllowedUser = {
-  email: string;
-  role: "admin" | "user";
-  createdAt: Date;
-};
 
 export default function Admin() {
   const { user, role } = useAuth();

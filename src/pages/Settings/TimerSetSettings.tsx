@@ -1,15 +1,7 @@
 import { useEffect, useState } from "react";
 import { api } from "../../api/client";
 import { useAuth } from "../../contexts/AuthContext";
-
-type TimerSet = {
-  _id: string;
-  name: string;
-  workDuration: number;
-  breakDuration: number;
-  cycles: number;
-  longBreakDuration: number;
-};
+import type { TimerSet } from "../../types";
 
 export default function TimerSetSettings() {
   const { user } = useAuth();

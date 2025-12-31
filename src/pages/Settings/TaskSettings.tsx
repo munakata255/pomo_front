@@ -1,17 +1,16 @@
 import { useEffect, useState } from "react";
 import { api } from "../../api/client";
 import { useAuth } from "../../contexts/AuthContext";
+import type { Task } from "../../types";
 
-type Task = {
-  _id: string;
-  name: string;
+interface TaskWithUI extends Task {
   color?: string;
   isActive: boolean;
-};
+}
 
 export default function Settings() {
   const { user } = useAuth();
-  const [tasks, setTasks] = useState<Task[]>([]);
+  const [tasks, setTasks] = useState<TaskWithUI[]>([]);
   const [newTask, setNewTask] = useState("");
 
   // ▼ タスク一覧取得
