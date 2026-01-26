@@ -1,3 +1,4 @@
+import { useState } from "react";
 import TaskSelect from "../components/TaskSelect";
 import TimerSetSelect from "../components/TimerSetSelect";
 import Timer from "../components/Timer";
@@ -5,8 +6,19 @@ import { useTimerContext } from "../contexts/TimerContext";
 import "./Home.css";
 
 export default function Home() {
-  const { selectedTask, selectedTimerSet, setSelectedTask, setSelectedTimerSet } =
+  const { selectedTask, selectedTimerSet, setSelectedTask, setSelectedTimerSet, buttonMode, isRunning, start, stop } =
     useTimerContext();
+  const [isTimerHovered, setIsTimerHovered] = useState(false);
+
+  const handleTimerWrapperClick = () => {
+    if (buttonMode === "click") {
+      if (isRunning) {
+        stop();
+      } else {
+        start();
+      }
+    }
+  };
 
   return (
     <div className="home-container">
@@ -28,7 +40,17 @@ export default function Home() {
       </div>
 
       {/* タイマー表示 */}
-      <div className="timer-wrapper">
+      <div 
+        className="timer-wrapper"
+        onClick={handleTimerWrapperClick}
+        onMouseEnter={() => buttonMode === "click" && setIsTimerHovered(true)}
+        onMouseLeave={() => setIsTimerHovered(false)}
+        style={{
+          cursor: buttonMode === "click" ? "pointer" : "default",
+          backgroundColor: buttonMode === "click" && isTimerHovered ? "rgba(25, 118, 210, 0.08)" : "#ffffff",
+          transition: "background-color 0.2s ease",
+        }}
+      >
         <Timer />
       </div>
 

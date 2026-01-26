@@ -14,6 +14,7 @@ export default function Timer() {
     reset,
     save,
     hasTimerStarted,
+    buttonMode,
   } = useTimerContext();
   // 秒 → mm:ss
   const formatTime = (sec: number) => {
@@ -130,7 +131,14 @@ export default function Timer() {
   return (
     <div style={{ marginTop: "20px"}}>
       {/* 円形プログレスバー */}
-      <div style={{ position: "relative", width: "300px", height: "300px", margin: "0 auto 30px" }}>
+      <div 
+        style={{ 
+          position: "relative", 
+          width: "300px", 
+          height: "300px", 
+          margin: "0 auto 30px",
+        }}
+      >
         <svg width="300" height="300" style={{ transform: "rotate(-90deg)" }}>
           <circle cx="150" cy="150" r={radius} stroke="#e0e0e0" strokeWidth="12" fill="none" />
           <circle
@@ -173,51 +181,82 @@ export default function Timer() {
         サイクル数: {cycle} / {selectedTimerSet?.cycles || 1}
       </div>
 
-      <div style={{ display: "flex", gap: "15px", justifyContent: "center" }}>
-        <button
-          onClick={start}
-          disabled={isRunning}
-          onMouseEnter={() => (!isRunning ? setHovered("start") : setHovered(null))}
-          onMouseLeave={() => setHovered(null)}
-          style={buttonStyle("start", isRunning, hovered === "start")}
-        >
-          Start
-        </button>
-        <button
-          onClick={stop}
-          disabled={!isRunning}
-          onMouseEnter={() => (isRunning ? setHovered("stop") : setHovered(null))}
-          onMouseLeave={() => setHovered(null)}
-          style={buttonStyle("stop", !isRunning, hovered === "stop")}
-        >
-          Stop
-        </button>
-        <button
-          onClick={reset}
-          onMouseEnter={() => setHovered("reset")}
-          onMouseLeave={() => setHovered(null)}
-          style={buttonStyle("reset", false, hovered === "reset")}
-        >
-          Reset
-        </button>
-        <button
-          onClick={save}
-          disabled={isRunning || !hasTimerStarted || phase !== "work"}
-          onMouseEnter={() =>
-            isRunning || !hasTimerStarted || phase !== "work"
-              ? setHovered(null)
-              : setHovered("save")
-          }
-          onMouseLeave={() => setHovered(null)}
-          style={buttonStyle(
-            "save",
-            isRunning || !hasTimerStarted || phase !== "work",
-            hovered === "save",
-          )}
-        >
-          Save
-        </button>
-      </div>
+      {/* ボタン表示をモードに応じて切り替え */}
+      {buttonMode === "buttons" ? (
+        <div style={{ display: "flex", gap: "15px", justifyContent: "center" }}>
+          <button
+            onClick={start}
+            disabled={isRunning}
+            onMouseEnter={() => (!isRunning ? setHovered("start") : setHovered(null))}
+            onMouseLeave={() => setHovered(null)}
+            style={buttonStyle("start", isRunning, hovered === "start")}
+          >
+            Start
+          </button>
+          <button
+            onClick={stop}
+            disabled={!isRunning}
+            onMouseEnter={() => (isRunning ? setHovered("stop") : setHovered(null))}
+            onMouseLeave={() => setHovered(null)}
+            style={buttonStyle("stop", !isRunning, hovered === "stop")}
+          >
+            Stop
+          </button>
+          <button
+            onClick={reset}
+            onMouseEnter={() => setHovered("reset")}
+            onMouseLeave={() => setHovered(null)}
+            style={buttonStyle("reset", false, hovered === "reset")}
+          >
+            Reset
+          </button>
+          <button
+            onClick={save}
+            disabled={isRunning || !hasTimerStarted || phase !== "work"}
+            onMouseEnter={() =>
+              isRunning || !hasTimerStarted || phase !== "work"
+                ? setHovered(null)
+                : setHovered("save")
+            }
+            onMouseLeave={() => setHovered(null)}
+            style={buttonStyle(
+              "save",
+              isRunning || !hasTimerStarted || phase !== "work",
+              hovered === "save",
+            )}
+          >
+            Save
+          </button>
+        </div>
+      ) : (
+        <div style={{ display: "flex", gap: "15px", justifyContent: "center" }}>
+          <button
+            onClick={reset}
+            onMouseEnter={() => setHovered("reset")}
+            onMouseLeave={() => setHovered(null)}
+            style={buttonStyle("reset", false, hovered === "reset")}
+          >
+            Reset
+          </button>
+          <button
+            onClick={save}
+            disabled={isRunning || !hasTimerStarted || phase !== "work"}
+            onMouseEnter={() =>
+              isRunning || !hasTimerStarted || phase !== "work"
+                ? setHovered(null)
+                : setHovered("save")
+            }
+            onMouseLeave={() => setHovered(null)}
+            style={buttonStyle(
+              "save",
+              isRunning || !hasTimerStarted || phase !== "work",
+              hovered === "save",
+            )}
+          >
+            Save
+          </button>
+        </div>
+      )}
     </div>
   );
 }

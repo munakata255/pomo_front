@@ -27,4 +27,8 @@ export interface TimerContextType {
   
   // ステータス
   hasTimerStarted: boolean;
+  
+  // ボタン操作モード
+  buttonMode: "buttons" | "click";
+  setButtonMode: (mode: "buttons" | "click") => void;
 }

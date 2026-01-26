@@ -1,5 +1,6 @@
 import TaskSettings from "./TaskSettings";
 import TimerSetSettings from "./TimerSetSettings";
+import ButtonSettings from "./ButtonSettings";
 import "../../styles/settings.css";
 
 export default function SettingsPage() {
@@ -16,6 +17,11 @@ export default function SettingsPage() {
         {/* ▼ タイマーセット管理 */}
         <div className="settings-card">
           <TimerSetSettings />
+        </div>
+
+        {/* ▼ ボタン操作設定 */}
+        <div className="settings-card">
+          <ButtonSettings />
         </div>
       </div>
     </div>

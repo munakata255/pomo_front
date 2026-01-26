@@ -24,6 +24,7 @@ export function TimerProvider({ children }: { children: ReactNode }) {
   const [phase, setPhase] = useState<Phase>("work");
   const [cycle, setCycle] = useState(1);
   const [hasTimerStarted, setHasTimerStarted] = useState(false);
+  const [buttonMode, setButtonMode] = useState<"buttons" | "click">("buttons");
 
   const timeLeftRef = useRef(0);
   const phaseRef = useRef<Phase>("work");
@@ -327,6 +328,8 @@ export function TimerProvider({ children }: { children: ReactNode }) {
     reset,
     save,
     hasTimerStarted,
+    buttonMode,
+    setButtonMode,
   };
 
   return (
